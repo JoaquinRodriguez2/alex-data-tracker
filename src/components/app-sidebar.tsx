@@ -18,19 +18,21 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import { useSidebarState } from "@/global/sideBarState"
+
 
 // This is sample data.
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
+    name: "Nombre",
+    email: "nombre.apellido@alex.com.ve",
     avatar: "/avatars/shadcn.jpg",
   },
   teams: [
     {
       name: "Data Tracker",
       logo: GalleryVerticalEnd,
-      plan: "Transformamos Informacion en Conocimiento",
+      plan: "Transformamos Datos en Informacion Valiosa",
     },
     
   ],
@@ -82,8 +84,19 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const {setIsOpen,isOpen} = useSidebarState()
+  const companyData = [
+    {
+      name: "Data Tracker",
+      logo: GalleryVerticalEnd,
+      plan: "Transformamos Datos en Informacion Valiosa",
+      action: () => setIsOpen(!isOpen)
+    }
+  ]
+
+
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar {...props}>
       <SidebarHeader>
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>

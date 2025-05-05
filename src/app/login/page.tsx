@@ -2,14 +2,16 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSidebarState } from '@/global/sideBarState';
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-
+  const {setIsVisible,setIsOpen} = useSidebarState()
   const handleSubmit = async (e: React.FormEvent) => {
+
     e.preventDefault();
     setError('');
 
@@ -19,7 +21,9 @@ export default function LoginPage() {
       console.log('Login attempt with:', { email, password });
       
       // Redirect to dashboard after successful login
-      router.push('/dashboard');
+      router.push('/home');
+      setIsOpen(true)
+      setIsVisible(false)
     } catch (err) {
       setError('Invalid email or password' + err);
     }
