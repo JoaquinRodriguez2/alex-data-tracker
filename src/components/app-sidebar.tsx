@@ -18,7 +18,6 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { useSidebarState } from "@/global/sideBarState"
 
 
 // This is sample data.
@@ -45,7 +44,7 @@ const data = {
       items: [
         {
           title: "Activos",
-          url: "#",
+          url: "/assets",
         },
         {
           title: "Reportes",
@@ -84,15 +83,7 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const {setIsOpen,isOpen} = useSidebarState()
-  const companyData = [
-    {
-      name: "Data Tracker",
-      logo: GalleryVerticalEnd,
-      plan: "Transformamos Datos en Informacion Valiosa",
-      action: () => setIsOpen(!isOpen)
-    }
-  ]
+
 
 
   return (
