@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSidebarState } from '@/global/sideBarState';
+import { authData, connectRealTimeUser } from '@/services/getAuthToZustand';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -16,14 +17,18 @@ export default function LoginPage() {
     setError('');
 
     try {
-      // Here you would typically make an API call to your authentication endpoint
-      // For now, we'll just simulate a successful login
-      console.log('Login attempt with:', { email, password });
-      
-      // Redirect to dashboard after successful login
-      router.push('/home');
-      setIsOpen(true)
-      setIsVisible(false)
+      const isAuthenticated = await authData(email, password);
+      if (!isAuthenticated) {
+        setError('Invalid email or password');
+        return;
+      }else{
+        router.push('/home');
+        connectRealTimeUser()
+        
+        setIsOpen(true)
+        setIsVisible(false)
+      }
+
     } catch (err) {
       setError('Invalid email or password' + err);
     }
