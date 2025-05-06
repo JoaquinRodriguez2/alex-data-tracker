@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSidebarState } from '@/global/sideBarState';
-import { authData } from '@/services/getAuthToZustand';
+import { authData, connectRealTimeUser } from '@/services/getAuthToZustand';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -17,13 +17,14 @@ export default function LoginPage() {
     setError('');
 
     try {
-      console.log('Login attempt with:', { email, password });
       const isAuthenticated = await authData(email, password);
       if (!isAuthenticated) {
         setError('Invalid email or password');
         return;
       }else{
         router.push('/home');
+        connectRealTimeUser()
+        
         setIsOpen(true)
         setIsVisible(false)
       }
