@@ -44,7 +44,7 @@ const data = {
       items: [
         {
           title: "Activos",
-          url: "/asset",
+          url: "/asset-templates",
         },
         {
           title: "Reportes",

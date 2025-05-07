@@ -1,80 +1,74 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { pocketbaseConection } from "@/services/core/pocketbase";
-
-interface AssetTemplate {
-  id: string;
-  name: string;
-  description: string;
-  created: string;
-  updated: string;
-}
+import { useRouter } from "next/navigation"; // Import useRouter
+import { useAssetTemplates } from "@/app/asset-templates/hooks/useAssetTemplates";
+import { AssetTemplateCard } from "./components/AssetTemplateCard";
 
 export default function AssetPage() {
-  const [assetTemplates, setAssetTemplates] = useState<AssetTemplate[]>([]);
-  const [filteredTemplates, setFilteredTemplates] = useState<AssetTemplate[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  const {
+    assetTemplates,
+    loading,
+    searchQuery,
+    setSearchQuery,
+    currentPage,
+    totalPages,
+    handlePageChange,
+  } = useAssetTemplates();
 
-  useEffect(() => {
-    const fetchAssetTemplates = async () => {
-      try {
-        setLoading(true);
-        const response = await pocketbaseConection
-          .collection("assetTemplates")
-          .getList(1, 1); // Fetch the first page with 30 items per page
-        setAssetTemplates(response.items);
-        setFilteredTemplates(response.items); // Initialize filtered templates
-      } catch (error) {
-        console.error("Error fetching asset templates:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAssetTemplates();
-  }, []);
-
-  useEffect(() => {
-    // Filter templates based on the search query
-    const filtered = assetTemplates.filter((template) =>
-      template.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    setFilteredTemplates(filtered);
-  }, [searchQuery, assetTemplates]);
+  const router = useRouter(); // Initialize useRouter
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Asset Templates</h1>
+      <h1 className="text-2xl font-bold mb-4">Plantilla de Equipos</h1>
       <div className="mb-4">
         <input
           type="text"
-          placeholder="Search by name..."
+          placeholder="Buscar por nombre..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full p-2 border rounded-lg shadow-sm focus:outline-none focus:ring focus:ring-blue-300"
         />
       </div>
       {loading ? (
-        <p>Loading...</p>
-      ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {filteredTemplates.map((template) => (
-            <div
-              key={template.id}
-              className="border rounded-lg p-4 shadow hover:shadow-lg transition"
-            >
-              <h2 className="text-lg font-semibold">{template.name}</h2>
-              <p className="text-sm text-gray-600">{template.description}</p>
-              <p className="text-xs text-gray-500">
-                Created: {new Date(template.created).toLocaleString()}
-              </p>
-              <p className="text-xs text-gray-500">
-                Updated: {new Date(template.updated).toLocaleString()}
-              </p>
+          {Array.from({ length: 8 }).map((_, index) => (
+            <div key={index} className="border rounded-lg p-4 shadow animate-pulse">
+              <div className="h-6 bg-gray-300 rounded mb-2"></div>
+              <div className="h-4 bg-gray-300 rounded mb-1"></div>
+              <div className="h-4 bg-gray-300 rounded"></div>
             </div>
           ))}
+        </div>
+      ) : (
+        <div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {assetTemplates.map((template) => (
+              <AssetTemplateCard 
+                key={template.id} 
+                template={template} 
+                onClick={() => router.push(`/asset-templates/${template.id}`)} // Navigate to dynamic route
+              />
+            ))}
+          </div>
+          <div className="flex justify-between items-center mt-4">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50"
+            >
+              Previous
+            </button>
+            <span>
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
         </div>
       )}
     </div>
