@@ -22,7 +22,7 @@ export default function LoginPage() {
         setError('Invalid email or password');
         return;
       }else{
-        router.push('/home');
+        router.push('/dashboard');
         connectRealTimeUser()
         
         setIsOpen(true)

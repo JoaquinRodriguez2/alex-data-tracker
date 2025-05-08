@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation"; // Import useRouter
-import { useAssetTemplates } from "@/app/asset-templates/hooks/useAssetTemplates";
 import { AssetTemplateCard } from "./components/AssetTemplateCard";
+import { useAssetTemplates } from "./hooks/useAssetTemplates";
 
 export default function AssetPage() {
   const {
@@ -46,7 +46,7 @@ export default function AssetPage() {
               <AssetTemplateCard 
                 key={template.id} 
                 template={template} 
-                onClick={() => router.push(`/asset-templates/${template.id}`)} // Navigate to dynamic route
+                onClick={() => router.push(`asset-templates/${template.id}`)} // Navigate to dynamic route
               />
             ))}
           </div>

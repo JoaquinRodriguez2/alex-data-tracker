@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { fetchAssetTemplates } from "@/app/asset-templates/services/fetchAssetTemplates";
 import { AssetTemplate } from "@/types/asset";
+import { fetchAssetTemplates } from "../services/fetchAssetTemplates";
 
 export const useAssetTemplates = () => {
   const [assetTemplates, setAssetTemplates] = useState<AssetTemplate[]>([]);
