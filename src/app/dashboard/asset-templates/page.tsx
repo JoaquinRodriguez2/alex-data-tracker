@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"; // Import useRouter
 import { AssetTemplateCard } from "./components/AssetTemplateCard";
-import { useAssetTemplates } from "./hooks/useAssetTemplates";
+import { useAssetTemplates } from "./components/hooks/useAssetTemplates";
 
 export default function AssetPage() {
   const {
@@ -16,7 +16,9 @@ export default function AssetPage() {
   } = useAssetTemplates();
 
   const router = useRouter(); // Initialize useRouter
-
+  const createNewAssetTemplate = () =>{
+    router.push('/dashboard/asset-templates/new-asset-template')
+  }
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Plantilla de Equipos</h1>
@@ -28,6 +30,21 @@ export default function AssetPage() {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full p-2 border rounded-lg shadow-sm focus:outline-none focus:ring focus:ring-blue-300"
         />
+      </div>
+      <div className="mb-4 flex flex-row space-x-2">
+      <button
+      disabled={false}
+      onClick={() => createNewAssetTemplate()}
+      className="px-4 py-2 bg-blue-200 rounded-lg disabled:opacity-50 hover:bg-blue-300 focus:outline-none focus:ring focus:ring-blue-300"
+    >
+      Crear
+    </button>
+    <button
+      onClick={() => console.log("Export all assets")}
+      className="px-4 py-2 bg-green-200 rounded-lg disabled:opacity-50 hover:bg-green-300 focus:outline-none focus:ring focus:ring-green-300"
+    >
+      Exportar Todo
+    </button>
       </div>
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

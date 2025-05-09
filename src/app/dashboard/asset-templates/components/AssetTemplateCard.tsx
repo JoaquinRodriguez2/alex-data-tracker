@@ -1,4 +1,4 @@
-import { AssetTemplate } from "@/types/asset";
+import { AssetTemplate } from "@/types/AssetTemplate";
 
 export function AssetTemplateCard({ template,onClick }: { template: AssetTemplate,onClick:()=>void }) {
     return (

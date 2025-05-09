@@ -3,7 +3,7 @@
 import * as React from "react";
 import { ChevronRight, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Asset } from "@/types/asset";
+import type { Asset } from "@/types/AssetTemplate";
 
 interface AssetTreeViewProps {
   assets: Asset[];

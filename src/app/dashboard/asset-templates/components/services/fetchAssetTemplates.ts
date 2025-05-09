@@ -1,5 +1,5 @@
 import { pocketbaseConection } from "@/services/core/pocketbase";
-import { AssetTemplate } from "@/types/asset";
+import { AssetTemplate } from "@/types/AssetTemplate";
 
 export const fetchAssetTemplates = async (query: string = "", page: number = 1) => {
   try {

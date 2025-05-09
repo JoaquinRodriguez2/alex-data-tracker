@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AssetTemplate } from "@/types/asset";
+import { AssetTemplate } from "@/types/AssetTemplate";
 import { fetchAssetTemplates } from "../services/fetchAssetTemplates";
 
 export const useAssetTemplates = () => {
