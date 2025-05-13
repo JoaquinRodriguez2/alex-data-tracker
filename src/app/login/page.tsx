@@ -2,32 +2,20 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSidebarState } from '@/global/sideBarState';
-import { authData, connectRealTimeUser } from '@/services/getAuthToZustand';
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const {setIsVisible,setIsOpen} = useSidebarState()
   const handleSubmit = async (e: React.FormEvent) => {
 
     e.preventDefault();
     setError('');
 
     try {
-      const isAuthenticated = await authData(email, password);
-      if (!isAuthenticated) {
-        setError('Invalid email or password');
-        return;
-      }else{
-        router.push('/dashboard');
-        connectRealTimeUser()
-        
-        setIsOpen(true)
-        setIsVisible(false)
-      }
+      router.push('/dashboard');
+      return true
 
     } catch (err) {
       setError('Invalid email or password' + err);

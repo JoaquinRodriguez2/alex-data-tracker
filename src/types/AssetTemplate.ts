@@ -9,7 +9,5 @@ export interface AssetTemplate {
   description: string;
   created: string;
   updated: string;
-  parentField: Array<string>;
   childFields: Array<string>;
-  tags: Array<AssetTag>;
 }

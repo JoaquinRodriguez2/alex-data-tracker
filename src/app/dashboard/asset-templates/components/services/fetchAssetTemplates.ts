@@ -1,15 +1,21 @@
-import { pocketbaseConection } from "@/services/core/pocketbase";
 import { AssetTemplate } from "@/types/AssetTemplate";
 
 export const fetchAssetTemplates = async (query: string = "", page: number = 1) => {
   try {
-    const response = await pocketbaseConection
-      .collection("assetTemplates")
-      .getList(page, 10, {
-        filter: query ? `name ~ "${query}"` : undefined,
-      });
+    console.log("The query is", query , "and the page is", page);
+    const response = {
+      items: Array(10).fill(null).map((_, index) => ({
+        id: `template-${index + 1}`,
+        name: `Asset Template ${index + 1}`,
+        description: `Description for Asset Template ${index + 1}`,
+        created: new Date().toISOString(),
+        updated: new Date().toISOString(),
+      }))  as AssetTemplate[],
+      totalPages: 5,
+    };
+
     return {
-      items: response.items as unknown as AssetTemplate[],
+      items: response.items,
       totalPages: response.totalPages,
     };
   } catch (error) {
