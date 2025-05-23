@@ -15,3 +15,4 @@ export function AssetTemplateCard({ template,onClick }: { template: AssetTemplat
       </div>
     );
   }
+  

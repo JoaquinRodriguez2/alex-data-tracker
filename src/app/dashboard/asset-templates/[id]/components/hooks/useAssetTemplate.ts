@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getAssetTemplateById } from "@/app/dashboard/asset-templates/[id]/components/services/getAssetTemplateById";
 import { assetTemplateByList } from "@/app/dashboard/asset-templates/[id]/components/services/getTemplatesByList";
 import { AssetTemplate } from "@/types/AssetTemplate";
+import { assetTemplateFather } from "../services/getAssetTemplateFather";
 
 export function useAssetTemplate(id: string) {
   const [assetTemplate, setAssetTemplate] = useState<AssetTemplate | null>(null);
@@ -17,6 +18,11 @@ export function useAssetTemplate(id: string) {
         assetTemplateByList(assetTemplate.childFields).then((data) => {
             setAssetChildrenList(data);
             console.log("assetChildrenList", data);
+        });
+
+        assetTemplateFather(assetTemplate.id).then((data) => {
+            setAssetFatherList(data);
+            console.log("assetFatherList", data);
         });
         
     }else{

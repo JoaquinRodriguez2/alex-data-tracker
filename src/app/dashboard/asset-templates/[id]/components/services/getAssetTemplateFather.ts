@@ -1,8 +1,8 @@
 import { AssetTemplate } from "@/types/AssetTemplate";
 
-export const assetTemplateFather = async (ids: string[]): Promise<AssetTemplate[] | null> => {
+export const assetTemplateFather = async (id: string): Promise<AssetTemplate[] | null> => {
   try {
-    console.log("father ids", ids);
+    console.log("father ids", id);
 
     // return a little dummy list of assetTemplates
     const assetTemplates: AssetTemplate[] = [
