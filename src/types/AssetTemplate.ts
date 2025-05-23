@@ -7,7 +7,5 @@ export interface AssetTemplate {
   id: string;
   name: string;
   description: string;
-  created: string;
-  updated: string;
-  childFields: Array<string>;
+  created_at: string;
 }

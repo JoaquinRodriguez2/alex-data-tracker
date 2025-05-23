@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { AssetTemplate } from "@/types/AssetTemplate";
+import { fetchAllAssetTemplatesList } from "../services/getPaginatedAssetTemplateList";
 
 export const useAssetTemplates = () => {
   const [assetTemplates, setAssetTemplates] = useState<AssetTemplate[]>([]);
@@ -8,13 +9,17 @@ export const useAssetTemplates = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
 
+  const tryGetData = async () =>{
+        const {items,totalPages} = await fetchAllAssetTemplatesList(currentPage);
+        setAssetTemplates(items);
+        setTotalPages(totalPages);
+  }
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        //const { items, totalPages } = await fetchAllAssetTemplatesList(searchQuery, currentPage);
-        //setAssetTemplates(items);
-        //setTotalPages(totalPages);
+        await tryGetData();
       } catch (error) {
         console.error("Error fetching asset templates:", error);
       } finally {

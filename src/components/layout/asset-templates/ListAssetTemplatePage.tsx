@@ -19,6 +19,7 @@ export default function ListAssetTemplatePage() {
   const createNewAssetTemplate = () =>{
     router.push('/dashboard/asset-templates/new-asset-template')
   }
+  
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Plantilla de Equipos</h1>
