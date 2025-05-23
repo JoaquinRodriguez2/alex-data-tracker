@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { AssetTemplate } from "@/types/AssetTemplate";
-import { fetchAssetTemplates } from "../services/fetchAssetTemplates";
 
 export const useAssetTemplates = () => {
   const [assetTemplates, setAssetTemplates] = useState<AssetTemplate[]>([]);
@@ -13,9 +12,9 @@ export const useAssetTemplates = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const { items, totalPages } = await fetchAssetTemplates(searchQuery, currentPage);
-        setAssetTemplates(items);
-        setTotalPages(totalPages);
+        //const { items, totalPages } = await fetchAllAssetTemplatesList(searchQuery, currentPage);
+        //setAssetTemplates(items);
+        //setTotalPages(totalPages);
       } catch (error) {
         console.error("Error fetching asset templates:", error);
       } finally {

@@ -16,6 +16,7 @@ export default function Page({ children }: { children: React.ReactNode }) {
   const pathSegments = pathname.split("/").filter(Boolean); // Split the path into segments
 
   return (
+      
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
@@ -53,5 +54,6 @@ export default function Page({ children }: { children: React.ReactNode }) {
         {children}
       </SidebarInset>
     </SidebarProvider>
-  );
+
+ );
 }
