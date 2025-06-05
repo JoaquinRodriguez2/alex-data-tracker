@@ -49,6 +49,10 @@ const data = {
           url: "/dashboard/asset-templates",
         },
         {
+          title: "Plantilla de Campos de Seguimiento",
+          url: "/dashboard/tracked-fields",
+        },
+        {
           title: "Plantilla de Procedimientos",
           url: "#",
         },
@@ -65,7 +69,7 @@ const data = {
         },
         {
           title: "Lista de Activos",
-          url: "#",
+          url: "/dashboard/asset",
         },
 
       ],

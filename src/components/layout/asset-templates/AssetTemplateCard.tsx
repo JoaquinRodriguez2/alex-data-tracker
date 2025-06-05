@@ -6,12 +6,9 @@ export function AssetTemplateCard({ template,onClick }: { template: AssetTemplat
         <h2 className="text-lg font-semibold">{template.name}</h2>
         <p className="text-sm text-gray-600">{template.description}</p>
         <p className="text-xs text-gray-500">
-          Creado en: {new Date(template.created).toLocaleString()}
+          Creado en: {new Date(template.created_at).toLocaleString()}
         </p>
-        <p className="text-xs text-gray-500">
-          Actualizado: {new Date(template.updated).toLocaleString()}
-        </p>
-        <p className="text-xs text-gray-500">Actualizado por: . . .</p>
+
       </div>
     );
   }

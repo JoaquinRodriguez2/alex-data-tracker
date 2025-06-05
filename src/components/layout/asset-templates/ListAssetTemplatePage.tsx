@@ -1,5 +1,5 @@
 "use client";
-
+import {RefreshCw} from "lucide-react"
 import { useRouter } from "next/navigation"; // Import useRouter
 import { AssetTemplateCard } from "./AssetTemplateCard";
 import { useAssetTemplates } from "./hooks/useAssetTemplates";
@@ -13,6 +13,7 @@ export default function ListAssetTemplatePage() {
     currentPage,
     totalPages,
     handlePageChange,
+    tryGetData
   } = useAssetTemplates();
 
   const router = useRouter(); // Initialize useRouter
@@ -45,6 +46,12 @@ export default function ListAssetTemplatePage() {
       className="px-4 py-2 bg-green-200 rounded-lg disabled:opacity-50 hover:bg-green-300 focus:outline-none focus:ring focus:ring-green-300"
     >
       Exportar Todo
+    </button>
+        <button
+      onClick={() => tryGetData}
+      className="px-4 py-2 bg-yellow-200 rounded-lg disabled:opacity-50 hover:bg-yellow-300 focus:outline-none focus:ring focus:ring-yellow-300"
+    >
+      <RefreshCw className="w-4 h-4" />
     </button>
       </div>
       {loading ? (

@@ -1,26 +1,25 @@
 import { getPagesLogic } from "@/utils/getPagesLogic";
 import supabase from "@/utils/SupabaseConfig";
 
-const pageSize = 2
+const pageSize = 4
 
 
 
 //Fetch Paginated Data, it returns a list of assets
-export async function fetchAllAssetTemplatesList(currentPage: number = 1) {
+export async function fetchAllAssetTemplatesList(currentPage:number) {
     
     const {count: totalCount} = await supabase
-  .from('asset_templates')
+  .from('equipment_templates')
   .select('*', { count: 'exact' })
   .range(0, 0)
 
   const {top,bottom,totalPages} = getPagesLogic(totalCount ?? 0, currentPage, pageSize)
 
-   console.log(totalPages)
     const {data, error} = await supabase
-  .from('asset_templates')
+  .from('equipment_templates')
   .select('*')
   .range(bottom,top)
-
+  
   console.log(data)
   
   if (error) {
@@ -39,17 +38,3 @@ export async function fetchAllAssetTemplatesList(currentPage: number = 1) {
   }
   
 }
-
-
-async function getAssetTemplatesCount() {
-    const { data, error } = await supabase.rpc('count_asset_templates');
-
-    if (error) {
-        console.error('Error calling count_asset_templates function:', error);
-        return null;
-    }
-
-    return data;
-}
-
-getAssetTemplatesCount();

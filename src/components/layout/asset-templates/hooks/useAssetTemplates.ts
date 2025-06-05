@@ -10,7 +10,7 @@ export const useAssetTemplates = () => {
   const [totalPages, setTotalPages] = useState<number>(1);
 
   const tryGetData = async () =>{
-        const {items,totalPages} = await fetchAllAssetTemplatesList(currentPage);
+        const {items,totalPages} = await fetchAllAssetTemplatesList(currentPage,searchQuery);
         setAssetTemplates(items);
         setTotalPages(totalPages);
   }
@@ -44,5 +44,6 @@ export const useAssetTemplates = () => {
     currentPage,
     totalPages,
     handlePageChange,
+    tryGetData
   };
 };

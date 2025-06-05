@@ -8,4 +8,5 @@ export interface AssetTemplate {
   name: string;
   description: string;
   created_at: string;
+  fields_to_track: unknown[];
 }
