@@ -2,7 +2,6 @@
 
 import { useEffect } from 'react'; // Import useEffect
 import supabase from "@/utils/SupabaseConfig";
-import { Button } from '@/components/ui/button';
 
 async function fetchData(){
     // It's good practice to log when the fetch starts to trace its execution
