@@ -152,11 +152,11 @@ function ChildrenCard({ childrenTemplates, onAdd, onRemove, allTemplates, loadin
     <div className="bg-white rounded shadow p-8 mb-6">
       <h2 className="text-xl font-bold mb-4">Children Templates</h2>
       {/* Selector y botón arriba */}
-      <div className="flex space-x-2 mb-4">
+      <div className="flex flex-col sm:flex-row sm:space-x-2 mb-4 gap-2">
         <select
           value={selected}
           onChange={(e) => setSelected(e.target.value)}
-          className="border rounded px-2 py-1"
+          className="border rounded px-2 py-1 flex-1"
           disabled={!isEditing}
         >
           <option value="">Select template to add as child</option>
@@ -167,7 +167,7 @@ function ChildrenCard({ childrenTemplates, onAdd, onRemove, allTemplates, loadin
           ))}
         </select>
         <button
-          className="bg-blue-600 text-white px-3 py-1 rounded"
+          className="bg-blue-600 text-white px-3 py-1 rounded disabled:opacity-50"
           disabled={!selected || !isEditing}
           onClick={() => {
             onAdd(selected);
@@ -180,24 +180,24 @@ function ChildrenCard({ childrenTemplates, onAdd, onRemove, allTemplates, loadin
       {loading ? (
         <p>Loading...</p>
       ) : (
-        <ul className="mb-4">
-          {childrenTemplates.length === 0 && <li>No children.</li>}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+          {childrenTemplates.length === 0 && <div className="col-span-full text-gray-500">No children.</div>}
           {childrenTemplates.map((child) => (
-            <li key={child.id} className="flex justify-between items-center border-b py-2">
+            <div key={child.id} className="border rounded-lg p-4 flex flex-col justify-between bg-gray-50 shadow-sm hover:shadow-md transition">
               <div>
-                <div className="font-semibold">{child.name}</div>
-                <div className="text-sm text-gray-500">{child.description}</div>
+                <div className="font-semibold text-lg mb-1">{child.name}</div>
+                <div className="text-sm text-gray-500 mb-2">{child.description}</div>
               </div>
               <button
-                className="text-red-600 text-xs"
+                className="text-red-600 text-xs self-end mt-2"
                 onClick={() => onRemove(child.id)}
                 disabled={!isEditing}
               >
                 Remove
               </button>
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
@@ -213,14 +213,14 @@ function ParentsCard({ parentTemplates, loading }) {
       ) : parentTemplates.length === 0 ? (
         <p>No parents.</p>
       ) : (
-        <ul>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {parentTemplates.map((parent) => (
-            <li key={parent.id} className="border-b py-2">
-              <div className="font-semibold">{parent.name}</div>
+            <div key={parent.id} className="border rounded-lg p-4 bg-gray-50 shadow-sm hover:shadow-md transition">
+              <div className="font-semibold text-lg mb-1">{parent.name}</div>
               <div className="text-sm text-gray-500">{parent.description}</div>
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
