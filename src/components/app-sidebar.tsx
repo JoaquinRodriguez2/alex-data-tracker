@@ -32,65 +32,69 @@ const data = {
   },
   teams: [
     {
-      name: "Advanced Logging & Explosives",
+      name: "ALEX TOOL TRACKER",
       logo: AudioWaveform,
       plan: "Transformamos Los datos en informacion valiosa para la toma de decisiones",
     }
   ],
   navMain: [
     {
-      title: "Plantillas",
+      title: "Templates",
       url: "#",
       icon: BookOpenIcon,
       isActive: true,
       items: [
         {
-          title: "Plantilla de Activos",
+          title: "Equipment Templates",
           url: "/dashboard/asset-templates",
         },
         {
-          title: "Plantilla de Campos de Seguimiento",
+          title: "Tracked Fields Templates",
           url: "/dashboard/tracked-fields",
         },
         {
-          title: "Plantilla de Procedimientos",
+          title: "Procedures Templates",
           url: "#",
         },
       ],
     },
     {
-      title: "Acciones",
+      title: "Actions",
       url: "#",
       icon: CableIcon,
       items: [
         {
-          title: "Lista de Procedimientos Asignados",
+          title: "Assigned Tasks",
           url: "#",
         },
         {
-          title: "Lista de Activos",
+          title: "Equipment List",
           url: "/dashboard/asset",
         },
-
+        {
+          title: "Tool Strings / Assemblies",
+          url: "/dashboard/asset",
+        },
+        {
+          title: "Runs",
+          url: "#",
+        }
       ],
     },
     {
-      title: "Documentacion",
+      title: "Docs",
       url: "#",
       icon:FootprintsIcon,
       items: [
         {
-          title: "Introduccion",
+          title: "Introduction",
           url: "#",
         },
         {
-          title: "Inicio",
+          title: "Use Guide",
           url: "#",
         },
-        {
-          title: "Tutorial",
-          url: "#",
-        },
+        
 
       ],
     },

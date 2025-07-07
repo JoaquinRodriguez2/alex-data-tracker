@@ -1,9 +1,13 @@
 "use client";
 import {RefreshCw} from "lucide-react"
 import { useRouter } from "next/navigation"; // Import useRouter
-import { AssetTemplateCard } from "./AssetTemplateCard";
 import { useAssetTemplates } from "./hooks/useAssetTemplates";
+import { DataTable } from "@/components/ui/data-table";
+import * as React from "react";
 
+
+
+import type { AssetTemplate } from "@/types/AssetTemplate";
 
 type AssetTemplateGridProps = {
   assetTemplates: AssetTemplate[];
@@ -11,42 +15,46 @@ type AssetTemplateGridProps = {
   onClick: (id: string) => void;
 };
 
+// ...existing code...
 export function AssetTemplateGrid({ assetTemplates, loading, onClick }: AssetTemplateGridProps) {
-  const clickHandler = (id: string) => {
-    onClick(id);
-  };
+  const columns = React.useMemo<import("@tanstack/react-table").ColumnDef<AssetTemplate, unknown>[]>(
+    () => [
+      {
+        accessorKey: "name",
+        header: "Nombre",
+        cell: ({ row }: { row: { original: AssetTemplate } }) => (
+          <span>{row.original.name}</span>
+        ),
+      },
+      {
+        accessorKey: "description",
+        header: "Descripción",
+        cell: ({ row }: { row: { original: AssetTemplate } }) => row.original.description || "Sin descripción",
+      },
+      {
+        accessorKey: "created_at",
+        header: "Fecha de creación",
+        cell: ({ row }: { row: { original: AssetTemplate } }) => row.original.created_at ? new Date(row.original.created_at).toLocaleDateString() : "N/A",
+      },
+    ],
+    []
+  );
 
-  if (!assetTemplates.length)
+  if (!assetTemplates.length) {
     return <div className="text-gray-400 mt-6 text-center">{loading ? "Cargando..." : "No hay plantillas encontradas."}</div>;
+  }
 
+  // Pass a row click handler to DataTable
   return (
-    <div className="overflow-x-auto rounded-lg shadow-sm">
-      <table className="min-w-full text-sm text-left font-normal">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="py-3 px-4 font-medium">Nombre</th>
-            <th className="py-3 px-4 font-medium">Descripción</th>
-            <th className="py-3 px-4 font-medium">Fecha de creación</th>
-          </tr>
-        </thead>
-        <tbody>
-          {assetTemplates.map((tpl, i) => (
-            <tr
-              key={tpl.id}
-              onClick={() => clickHandler(tpl.id)}
-              className={`transition hover:bg-blue-50 cursor-pointer ${i % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
-            >
-              <td className="py-3 px-4 border-b border-gray-100">{tpl.name}</td>
-              <td className="py-3 px-4 border-b border-gray-100">{tpl.description || "Sin descripción"}</td>
-              <td className="py-3 px-4 border-b border-gray-100">{tpl.created_at ? new Date(tpl.created_at).toLocaleDateString() : "N/A"}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <DataTable
+      columns={columns}
+      data={assetTemplates}
+      onRowClick={(row: AssetTemplate) => onClick(row.id)}
+      rowClassName="cursor-pointer hover:bg-blue-50"
+    />
   );
 }
-
+// ...existing code...
 
 export default function ListAssetTemplatePage() {
   const {

@@ -1,9 +1,8 @@
 "use client";
 import supabase from "@/utils/SupabaseConfig";
-import React, { useEffect, useState,useRef } from "react";
-import { useRouter } from "next/navigation"; // Import useRouter
-
-
+import React, { useEffect, useState, useRef } from "react";
+import { DataTable } from "@/components/ui/data-table";
+import { useRouter } from "next/navigation";
 
 type TrackedFieldTemplate = {
   id: string;
@@ -25,8 +24,44 @@ export default function Page() {
   const [filter, setFilter] = useState<"date" | "boolean" | "double" | "">("");
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
-
-
+  const columns = React.useMemo(
+    () => [
+      {
+        accessorKey: "name",
+        header: "Nombre",
+        cell: ({ row }: { row: { original: TrackedFieldTemplate } }) => (
+          <span>{row.original.name}</span>
+        ),
+      },
+      {
+        accessorKey: "description",
+        header: "Descripción",
+        cell: ({ row }: { row: { original: TrackedFieldTemplate } }) => row.original.description || <span className='italic text-gray-300'>N/A</span>,
+      },
+      {
+        accessorKey: "value_type",
+        header: "Tipo",
+        cell: ({ row }: { row: { original: TrackedFieldTemplate } }) => (
+          <span
+            className={`inline-block px-3 py-1 rounded-full text-xs font-semibold
+              ${row.original.value_type === "date" ? "bg-blue-100 text-blue-700" : ""}
+              ${row.original.value_type === "boolean" ? "bg-green-100 text-green-700" : ""}
+              ${row.original.value_type === "double" ? "bg-purple-100 text-purple-700" : ""}
+            `}
+          >
+            {row.original.value_type === "date"
+              ? "Fecha"
+              : row.original.value_type === "boolean"
+              ? "Verdadero/Falso"
+              : row.original.value_type === "double"
+              ? "Numero"
+              : ""}
+          </span>
+        ),
+      },
+    ],
+    []
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -58,7 +93,6 @@ export default function Page() {
     fetchData();
   }, [page]);
 
-
   // Debounce search input
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -71,8 +105,6 @@ export default function Page() {
     };
   }, [search]);
 
-// ...existing code...
-// ...existing code...
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -100,15 +132,15 @@ export default function Page() {
         .from("tracked_field_templates")
         .select("*", { count: "exact", head: true })
         .eq("is_invisible", false);
-      
+
       if (debouncedSearch.trim()) {
         countQuery = countQuery.or(`name.ilike.%${debouncedSearch.trim()}%,description.ilike.%${debouncedSearch.trim()}%`);
       }
-      
+
       if (filter) {
         countQuery = countQuery.eq("value_type", filter);
       }
-      
+
       const { count, error: countError } = await countQuery;
 
       setTotal(count || 0);
@@ -141,168 +173,113 @@ export default function Page() {
 
     fetchData();
   }, [page, debouncedSearch, filter]);
-// ...existing code...
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
-  // ...existing code...
-return (
-  <div className="min-h-screen min-w-screen bg-gradient-to-br from-blue-50 to-white flex flex-col justify-start py-12 p-4">
-    <div className="w-max">
-      <h1 className="text-4xl font-extrabold mb-10 text-blue-900 drop-shadow-sm tracking-tight">
-        <span className="inline-block bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
-          Tracked Field Templates
-        </span>
-      </h1>
-      {/* Search bar */}
-        <div className="mb-6 flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-          <input
-            type="text"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Search by name or description..."
-            className="w-full sm:w-80 px-4 py-2 border border-blue-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-          />
-          {/* Filter buttons */}
-          <div className="flex gap-2 mt-2 sm:mt-0">
-            <button
-              onClick={() => setFilter(filter === "date" ? "" : "date")}
-              className={`px-4 py-2 rounded-full font-semibold border transition-all ${
-                filter === "date"
-                  ? "bg-blue-600 text-white border-blue-700"
-                  : "bg-white text-blue-700 border-blue-300 hover:bg-blue-50"
-              }`}
-            >
-              Date
-            </button>
-            <button
-              onClick={() => setFilter(filter === "boolean" ? "" : "boolean")}
-              className={`px-4 py-2 rounded-full font-semibold border transition-all ${
-                filter === "boolean"
-                  ? "bg-green-600 text-white border-green-700"
-                  : "bg-white text-green-700 border-green-300 hover:bg-green-50"
-              }`}
-            >
-              Boolean
-            </button>
-            <button
-              onClick={() => setFilter(filter === "double" ? "" : "double")}
-              className={`px-4 py-2 rounded-full font-semibold border transition-all ${
-                filter === "double"
-                  ? "bg-red-600 text-red border-red-700"
-                  : "bg-red text-red-700 border-red-300 hover:bg-purple-50"
-              }`}
-            >
-              Double
-            </button>
-          </div>
-        </div>
-        
-      {loading && (
-        <div className="flex justify-center items-center py-8">
-          <svg
-            className="animate-spin h-10 w-10 text-blue-500"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            ></circle>
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v8z"
-            ></path>
-          </svg>
-        </div>
-      )}
-      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-5 gap-5 align-middle-center">
-        {data.map((item) => (
-          <div
-            key={item.id}
-            onClick={() => { router.push(`/dashboard/tracked-fields/${item.id}`); }}
-            className="bg-white border border-blue-100 rounded-2xl shadow-lg p-6 flex flex-col items-center transition-transform duration-200 hover:scale-105 hover:shadow-2xl"
-          >
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-1xl font-bold text-blue-700">{item.name}</span>
-              {item.value_type === "date" && (
-                <span title="Date">
-                  <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" />
-                    <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" />
-                  </svg>
-                </span>
-              )}
-              {item.value_type === "boolean" && (
-                <span title="Boolean">
-                  <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path d="M5 13l4 4L19 7" stroke="currentColor" />
-                  </svg>
-                </span>
-              )}
-              {item.value_type === "double" && (
-                <span title="Number">
-                  <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" />
-                    <text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">#</text>
-                  </svg>
-                </span>
-              )}
-            </div>
-                <p className="text-gray-500 text-center mb-4 min-h-[40px] w-full max-w-[220px] mx-auto break-words line-clamp-2">
-                {item.description || (
-                    <span className="italic text-gray-300">N/A</span>
-                )}
-                </p>
-            <span className={`inline-block px-4 py-1 rounded-full text-xs font-semibold
-              ${item.value_type === "date" ? "bg-blue-100 text-blue-700" : ""}
-              ${item.value_type === "boolean" ? "bg-green-100 text-green-700" : ""}
-              ${item.value_type === "double" ? "bg-purple-100 text-purple-700" : ""}
-            `}>
-            {item.value_type === "date"
-                ? "Fecha"
-                : item.value_type === "boolean"
-                ? "Verdadero/Falso"
-                : item.value_type === "double"
-                ? "Numero"
-                : ""}
-            </span>
-          </div>
-        ))}
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Tracked Field Templates</h1>
+      <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <input
+          type="text"
+          placeholder="Buscar por nombre o descripción..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="w-full sm:w-80 p-2 border rounded-lg shadow-sm focus:outline-none focus:ring focus:ring-blue-300"
+        />
+        <button
+          onClick={() => router.push('/dashboard/tracked-fields/new')}
+          className="px-4 py-2 bg-blue-500 text-white rounded-lg font-semibold shadow hover:bg-blue-600 transition-all"
+        >
+          Crear
+        </button>
       </div>
-      <div className="flex justify-center items-center gap-4 mt-12">
+      <div className="mb-4 flex flex-row space-x-2">
+        <button
+          onClick={() => setFilter(filter === "date" ? "" : "date")}
+          className={`px-4 py-2 rounded-lg font-semibold border transition-all ${
+            filter === "date"
+              ? "bg-blue-600 text-white border-blue-700"
+              : "bg-white text-blue-700 border-blue-300 hover:bg-blue-50"
+          }`}
+        >
+          Date
+        </button>
+        <button
+          onClick={() => setFilter(filter === "boolean" ? "" : "boolean")}
+          className={`px-4 py-2 rounded-lg font-semibold border transition-all ${
+            filter === "boolean"
+              ? "bg-green-600 text-white border-green-700"
+              : "bg-white text-green-700 border-green-300 hover:bg-green-50"
+          }`}
+        >
+          Boolean
+        </button>
+        <button
+          onClick={() => setFilter(filter === "double" ? "" : "double")}
+          className={`px-4 py-2 rounded-lg font-semibold border transition-all ${
+            filter === "double"
+              ? "bg-purple-600 text-white border-purple-700"
+              : "bg-white text-purple-700 border-purple-300 hover:bg-purple-50"
+          }`}
+        >
+          Double
+        </button>
+      </div>
+      {loading ? (
+        <div className="overflow-x-auto rounded-lg shadow-sm">
+          <table className="min-w-full text-sm text-left font-normal">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="py-3 px-4 font-medium">Nombre</th>
+                <th className="py-3 px-4 font-medium">Descripción</th>
+                <th className="py-3 px-4 font-medium">Tipo</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Array.from({ length: 6 }).map((_, index) => (
+                <tr key={index} className="bg-white animate-pulse">
+                  <td className="py-3 px-4 border-b border-gray-100">
+                    <div className="h-6 bg-gray-200 rounded w-3/4"></div>
+                  </td>
+                  <td className="py-3 px-4 border-b border-gray-100">
+                    <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                  </td>
+                  <td className="py-3 px-4 border-b border-gray-100">
+                    <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={data}
+          onRowClick={(row: TrackedFieldTemplate) => router.push(`/dashboard/tracked-fields/${row.id}`)}
+          rowClassName="cursor-pointer hover:bg-blue-50"
+        />
+      )}
+      <div className="flex justify-between items-center mt-4">
         <button
           onClick={() => setPage((p) => Math.max(1, p - 1))}
           disabled={page === 1}
-          className={`px-5 py-2 rounded-lg border font-semibold shadow-sm transition-all ${
-            page === 1
-              ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
-              : "bg-white text-blue-700 border-blue-300 hover:bg-blue-50 hover:shadow"
-          }`}
+          className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50"
         >
           Previous
         </button>
-        <span className="text-blue-900 font-semibold tracking-wide">
+        <span>
           Page {page} of {totalPages}
         </span>
         <button
           onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
           disabled={page === totalPages}
-          className={`px-5 py-2 rounded-lg border font-semibold shadow-sm transition-all ${
-            page === totalPages
-              ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
-              : "bg-white text-blue-700 border-blue-300 hover:bg-blue-50 hover:shadow"
-          }`}
+          className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50"
         >
           Next
         </button>
       </div>
     </div>
-  </div>
-);
+  );
 }

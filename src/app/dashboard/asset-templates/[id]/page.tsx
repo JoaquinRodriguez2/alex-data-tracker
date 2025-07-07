@@ -1,14 +1,8 @@
 "use client";
-
-import { useParams } from "next/navigation";
+import supabase from "@/utils/SupabaseConfig";
+import { DataTable } from "@/components/ui/data-table";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
-// SUPABASE CLIENT
-import { createClient } from "@supabase/supabase-js";
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 // --- HOOKS Y SERVICIOS ---
 
@@ -30,12 +24,13 @@ async function getAssetTemplateById(id: string) {
 async function getChildrenTemplates(id: string) {
   const { data, error } = await supabase
     .from("equipment_template_relations")
-    .select("child_id, equipment_templates:child_id(id, name, description)")
+    .select("child_id, equipment_templates:child_id(id, name, description,part_number)")
     .eq("parent_id", id);
   if (error) {
     console.log("Error fetching child templates:", error);
     throw error
   };
+  console.log("Child templates data:", data);
   return data?.map((row: any) => row.equipment_templates) || [];
 }
 
@@ -43,7 +38,7 @@ async function getChildrenTemplates(id: string) {
 async function getParentTemplates(id: string) {
   const { data, error } = await supabase
     .from("equipment_template_relations")
-    .select("parent_id, equipment_templates:parent_id(id, name, description)")
+    .select("parent_id, equipment_templates:parent_id(id, name, description,part_number)")
     .eq("child_id", id);
   if (error) {
     console.log("Error fetching parent templates:", error);
@@ -57,7 +52,7 @@ async function getAllTemplates() {
   const { data, error } = await supabase
     .from("equipment_templates")
     .select("id, name, description")
-    .eq("isActive", true);
+    .eq("is_active", true);
   if (error) throw error;
   return data || [];
 }
@@ -84,8 +79,23 @@ async function removeParent(childId: string, parentId: string) {
     throw error};
 }
 
+// Actualizar detalles de la plantilla
+async function updateAssetTemplate(
+  id: string,
+  updates: { name: string; description: string; part_number: string; is_active: boolean }
+) {
+  const { error } = await supabase
+    .from("equipment_templates")
+    .update(updates)
+    .eq("id", id);
+  if (error) {
+    console.log("Error updating asset template:", error);
+    throw error;
+  }
+}
+
 // Tarjeta de detalles
-function DetailsCard({ assetTemplate, isEditing, setIsEditing, form, setForm, handleChange }) {
+function DetailsCard({ assetTemplate, isEditing, setIsEditing, form, setForm, handleChange, handleSave, handleCancel }) {
   return (
     <div className="bg-white rounded shadow p-8 mb-6">
       <div className="flex justify-between items-center mb-6">
@@ -98,12 +108,20 @@ function DetailsCard({ assetTemplate, isEditing, setIsEditing, form, setForm, ha
             Edit
           </button>
         ) : (
-          <button
-            className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
-            onClick={() => setIsEditing(false)}
-          >
-            Cancel
-          </button>
+          <div className="flex space-x-2">
+            <button
+              className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+              onClick={handleCancel}
+            >
+              Cancel
+            </button>
+            <button
+              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              onClick={handleSave}
+            >
+              Guardar
+            </button>
+          </div>
         )}
       </div>
       <form className="space-y-6">
@@ -134,6 +152,34 @@ function DetailsCard({ assetTemplate, isEditing, setIsEditing, form, setForm, ha
           ) : (
             <p className="px-2 py-1">{assetTemplate?.description}</p>
           )}
+          <label className="block font-semibold mb-1">P/N:</label>
+          {isEditing ? (
+            <input
+              type="text"
+              name="part_number"
+              value={form.part_number}
+              onChange={handleChange}
+              className="w-full border rounded px-3 py-2"
+            />
+          ) : (
+            <p className="px-2 py-1">{assetTemplate?.part_number}</p>
+          )}
+        </div>
+        <div>
+          <label className="block font-semibold mb-1">Activo:</label>
+          {isEditing ? (
+            <select
+              name="is_active"
+              value={form.is_active ? "true" : "false"}
+              onChange={handleChange}
+              className="w-full border rounded px-3 py-2"
+            >
+              <option value="true">Sí</option>
+              <option value="false">No</option>
+            </select>
+          ) : (
+            <p className="px-2 py-1">{assetTemplate?.is_active ? "Sí" : "No"}</p>
+          )}
         </div>
       </form>
     </div>
@@ -143,6 +189,7 @@ function DetailsCard({ assetTemplate, isEditing, setIsEditing, form, setForm, ha
 // Tarjeta de hijos (treeview simple)
 function ChildrenCard({ childrenTemplates, onAdd, onRemove, allTemplates, loading, isEditing }) {
   const [selected, setSelected] = useState("");
+  const router = useRouter();
   // Excluir los hijos actuales y el propio nodo de la lista de posibles hijos
   const available = allTemplates.filter(
     (t) => !childrenTemplates.some((c) => c.id === t.id)
@@ -180,24 +227,32 @@ function ChildrenCard({ childrenTemplates, onAdd, onRemove, allTemplates, loadin
       {loading ? (
         <p>Loading...</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-          {childrenTemplates.length === 0 && <div className="col-span-full text-gray-500">No children.</div>}
-          {childrenTemplates.map((child) => (
-            <div key={child.id} className="border rounded-lg p-4 flex flex-col justify-between bg-gray-50 shadow-sm hover:shadow-md transition">
-              <div>
-                <div className="font-semibold text-lg mb-1">{child.name}</div>
-                <div className="text-sm text-gray-500 mb-2">{child.description}</div>
-              </div>
-              <button
-                className="text-red-600 text-xs self-end mt-2"
-                onClick={() => onRemove(child.id)}
-                disabled={!isEditing}
-              >
-                Remove
-              </button>
-            </div>
-          ))}
-        </div>
+        <DataTable
+          columns={[
+            { accessorKey: "name", header: "Nombre" },
+            { accessorKey: "part_number", header: "P/N" },
+            { accessorKey: "description", header: "Descripción" },
+            {
+              id: "actions",
+              header: "Acciones",
+              cell: ({ row }) => (
+                <button
+                  className="text-red-600 text-xs"
+                  onClick={e => {
+                    e.stopPropagation();
+                    onRemove(row.original.id);
+                  }}
+                  disabled={!isEditing}
+                >
+                  Remove
+                </button>
+              ),
+            },
+          ]}
+          data={childrenTemplates}
+          rowClassName="cursor-pointer hover:bg-blue-50"
+          onRowClick={row => router.push(`/dashboard/asset-templates/${row.id}`)}
+        />
       )}
     </div>
   );
@@ -205,22 +260,23 @@ function ChildrenCard({ childrenTemplates, onAdd, onRemove, allTemplates, loadin
 
 // Tarjeta de padres
 function ParentsCard({ parentTemplates, loading }) {
+  const router = useRouter();
   return (
     <div className="bg-white rounded shadow p-8 mb-6">
       <h2 className="text-xl font-bold mb-4">Parent Templates</h2>
       {loading ? (
         <p>Loading...</p>
-      ) : parentTemplates.length === 0 ? (
-        <p>No parents.</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {parentTemplates.map((parent) => (
-            <div key={parent.id} className="border rounded-lg p-4 bg-gray-50 shadow-sm hover:shadow-md transition">
-              <div className="font-semibold text-lg mb-1">{parent.name}</div>
-              <div className="text-sm text-gray-500">{parent.description}</div>
-            </div>
-          ))}
-        </div>
+        <DataTable
+          columns={[
+            { accessorKey: "name", header: "Nombre" },
+            { accessorKey: "part_number", header: "P/N" },
+            { accessorKey: "description", header: "Descripción" },
+          ]}
+          data={parentTemplates}
+          rowClassName="cursor-pointer hover:bg-blue-50"
+          onRowClick={row => router.push(`/dashboard/asset-templates/${row.id}`)}
+        />
       )}
     </div>
   );
@@ -241,7 +297,7 @@ export default function AssetTemplateDetailsPage() {
   const [loadingChildren, setLoadingChildren] = useState(true);
   const [loadingParents, setLoadingParents] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const [form, setForm] = useState({ name: "", description: "" });
+  const [form, setForm] = useState({ name: "", description: "", part_number: "", is_active: true });
 
   // Cargar datos iniciales
   useEffect(() => {
@@ -249,7 +305,12 @@ export default function AssetTemplateDetailsPage() {
     getAssetTemplateById(templateId)
       .then((data) => {
         setAssetTemplate(data);
-        setForm({ name: data?.name || "", description: data?.description || "" });
+        setForm({
+          name: data?.name || "",
+          description: data?.description || "",
+          part_number: data?.part_number || "",
+          is_active: data?.is_active ?? true
+        });
       })
       .finally(() => setLoading(false));
   }, [templateId]);
@@ -286,8 +347,41 @@ export default function AssetTemplateDetailsPage() {
   // (Opcional) Puedes agregar aquí handlers para editar padres si lo necesitas
 
   // Handlers para editar detalles
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e: any) => {
+    if (e.target.name === "is_active") {
+      setForm({ ...form, is_active: e.target.value === "true" });
+    } else {
+      setForm({ ...form, [e.target.name]: e.target.value });
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      await updateAssetTemplate(templateId, form);
+      setIsEditing(false);
+      // Refrescar datos
+      getAssetTemplateById(templateId).then((data) => {
+        setAssetTemplate(data);
+        setForm({
+          name: data?.name || "",
+          description: data?.description || "",
+          part_number: data?.part_number || "",
+          is_active: data?.is_active ?? true
+        });
+      });
+    } catch (error) {
+      alert("Error saving changes");
+    }
+  };
+
+  const handleCancel = () => {
+    setForm({
+      name: assetTemplate?.name || "",
+      description: assetTemplate?.description || "",
+      part_number: assetTemplate?.part_number || "",
+      is_active: assetTemplate?.is_active ?? true
+    });
+    setIsEditing(false);
   };
 
   return (
@@ -301,6 +395,8 @@ export default function AssetTemplateDetailsPage() {
           form={form}
           setForm={setForm}
           handleChange={handleChange}
+          handleSave={handleSave}
+          handleCancel={handleCancel}
         />
         {/* Tarjeta 2: Hijos */}
         <ChildrenCard
