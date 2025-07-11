@@ -77,7 +77,7 @@ const data = {
         },
         {
           title: "Runs",
-          url: "#",
+          url: "/dashboard/runs",
         }
       ],
     },
