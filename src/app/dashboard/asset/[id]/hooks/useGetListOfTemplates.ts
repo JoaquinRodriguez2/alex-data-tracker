@@ -1,14 +1,12 @@
 import { useEffect, useState } from "react";
-import { getAllTemplateData } from "../calls/getAllTemplateData";
+import { searchTemplates } from "../calls/searchTemplates";
 
 interface Template {
-  // Define your template fields here, e.g.:
-  id: number;
-  name: string;
-  // ...other fields
+  value: number;
+  label: string;
 }
 
-export function useGetListOfTemplates() {
+export function useGetListOfTemplates(query: string) {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -17,17 +15,18 @@ export function useGetListOfTemplates() {
     setLoading(true);
     setError(null);
 
-    getAllTemplateData()
+    searchTemplates(query)
       .then((result) => {
-        setTemplates(result.templates || []);
+        setTemplates(result);
         setLoading(false);
       })
-      .catch((err) => {
+      .catch(() => {
         setError("Failed to fetch templates.");
         setTemplates([]);
         setLoading(false);
       });
-  }, []);
+  }, [query]);
 
   return { templates, loading, error };
 }
+

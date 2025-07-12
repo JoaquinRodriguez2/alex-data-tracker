@@ -1,29 +1,34 @@
 // This file defines TypeScript interfaces and types used throughout the project.
-
-export interface EquipmentDetails {
-    id: string;
-    name: string;
-    serial_number: string;
-    part_number: string | null;
-    equipment_template_id: string;
-    main_equipment: boolean;
+export interface EquipmentRelation {
+  id: string;
+  parent_id: string;
+  child_id: Equipment;
+  children_template: ChildrenTemplate;
 }
 
-export interface EquipmentRelation {
-    id: string;
-    parent_id: string;
-    children_template_id: ChildrenTemplate;
-    child_id: string;
+export interface Equipment {
+  id: string;
+  name: string;
+  part_number: string;
+  serial_number: string;
+  main_equipment: boolean;
+  equipment_template_id: string;
+
 }
 
 export interface ChildrenTemplate {
-    id: string;
-    name: string;
-    part_number: string | null;
-    is_active: boolean;
+  id: string;
+  name: string;
+  is_active: boolean;
+  description: string;
+  part_number: string;
 }
 
-export interface EquipmentData {
-    equipment: Equipment;
-    children: ChildrenTemplate[];
+export interface EquipmentDetails {
+  id: string;
+  name: string;
+  part_number: string;
+  serial_number: string;
+  main_equipment: boolean;
+  equipment_template_id: string;
 }

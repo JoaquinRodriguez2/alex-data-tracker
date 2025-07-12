@@ -17,6 +17,8 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { EquipmentDetails } from "../types";
 import Select from "react-select";
+import AsyncSelect from "react-select/async";
+import { searchTemplates } from "../calls/searchTemplates";
 
 type AssetFormProps = {
   isEditable: boolean;
@@ -87,12 +89,7 @@ export default function AssetForm({
   }
 
   // Opciones de ejemplo para el autocompletado
-  const templateOptions = [
-    { value: "template-1", label: "Template 1" },
-    { value: "template-2", label: "Template 2" },
-    { value: "template-3", label: "Template 3" },
-    // Puedes agregar muchas más aquí...
-  ];
+
 
   return (
     <Form {...form}>
@@ -228,21 +225,32 @@ export default function AssetForm({
             name="text-input-5"
             render={({ field }) => (
               <FormItem className="col-span-6 col-start-auto flex self-end flex-col gap-2 space-y-0 items-start">
-                <FormLabel className="flex shrink-0">Template ID</FormLabel>
+                <FormLabel className="flex shrink-0">Template</FormLabel>
                 <div className="w-full">
                   <FormControl>
-                    <Select
+                    <AsyncSelect
                       isDisabled={isEditable}
-                      options={templateOptions}
-                      value={templateOptions.find(
-                        (opt) => opt.value === field.value
-                      )}
+                      cacheOptions
+                      defaultOptions
+                      loadOptions={searchTemplates}
+                      value={
+                        field.value
+                          ? listOfTemplates?.find((t) => t.value === field.value) || null
+                          : null
+                      }
                       onChange={(option) => field.onChange(option ? option.value : "")}
-                      placeholder="Selecciona un Template"
+                      placeholder="Busca un Template"
                       isClearable
                       className="w-full"
                       classNamePrefix="react-select"
                       menuPlacement="auto"
+                      getOptionLabel={(option) => {
+                        // Show only the part after the second space
+                        if (!option.label) return "";
+                        const parts = option.label.split(" ");
+                        return parts.length > 2 ? parts.slice(2).join(" ") : option.label;
+                      }}
+                      getOptionValue={(option) => option.value}
                     />
                   </FormControl>
                   <FormMessage />

@@ -1,19 +1,11 @@
 import { useEffect, useState } from "react";
-import { getEquipmentDetails } from "../calls/getEquipmentDetails";
-import { Equipment, EquipmentData, EquipmentDetails, EquipmentRelation } from "../types";
-import { getAllChildrenData } from "../calls/getAllChildrenData";
-
-
-
-
-
+import { getEquipmentDetails } from "../calls/fetchEquipmentDetails";
+import { EquipmentDetails } from "../types";
 
 export const useGetEquipmentData = (parentId: string) => {
   const [loading, setLoading] = useState(true);
-  const [childrenData, setChildrenData] = useState([]);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<unknown>(null);
   const [equipmentDetails, setEquipmentDetails] = useState<EquipmentDetails | null>(null);
-  const [equipmentChildren, setEquipmentChildren] = useState<EquipmentRelation[] | null>(null);
 
 
   useEffect(() => {
@@ -22,12 +14,6 @@ export const useGetEquipmentData = (parentId: string) => {
         setLoading(true);
         const equipmentDetailsResponse = await getEquipmentDetails(parentId);
         setEquipmentDetails(equipmentDetailsResponse);
-
-  
-
-        const equipmentChildrenResponse = await getAllChildrenData(parentId);
-        setEquipmentChildren(equipmentChildrenResponse);
-
         console.log("Equipment Details:", equipmentDetailsResponse);
 
       } catch (err) {
@@ -43,7 +29,6 @@ export const useGetEquipmentData = (parentId: string) => {
 
   return {
     //equipmentData,
-    childrenData,
     error,
     isLoading: loading,
     equipmentDetails: equipmentDetails,
