@@ -2,10 +2,14 @@
 
 import * as React from "react"
 import {
-  BookOpen,
-  GalleryVerticalEnd,
+  AudioWaveform,
+  Frame,
+  Map,
+  PieChart,
   Settings2,
-  Workflow,
+  CableIcon,
+  BookOpenIcon,
+  FootprintsIcon
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -19,75 +23,116 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 
-
 // This is sample data.
 const data = {
   user: {
-    name: "Nombre",
-    email: "nombre.apellido@alex.com.ve",
+    name: "Usuario",
+    email: "joaquin.rodriguez@alex.com.ve",
     avatar: "/avatars/shadcn.jpg",
   },
   teams: [
     {
-      name: "Data Tracker",
-      logo: GalleryVerticalEnd,
-      plan: "Transformamos Datos en Informacion Valiosa",
-    },
-    
+      name: "ALEX TOOL TRACKER",
+      logo: AudioWaveform,
+      plan: "Transformamos Los datos en informacion valiosa para la toma de decisiones",
+    }
   ],
   navMain: [
-    
     {
-      title: "Plantillas",
+      title: "Templates",
       url: "#",
-      icon: BookOpen,
+      icon: BookOpenIcon,
+      isActive: true,
       items: [
         {
-          title: "Activos",
-          url: "/assets",
+          title: "Equipment Templates",
+          url: "/dashboard/asset-templates",
         },
         {
-          title: "Reportes",
+          title: "Tracked Fields Templates",
+          url: "/dashboard/tracked-fields",
+        },
+        {
+          title: "Procedures Templates",
           url: "#",
         },
       ],
     },
     {
-      title: "Acciones",
+      title: "Actions",
       url: "#",
-      icon: Workflow,
+      icon: CableIcon,
       items: [
         {
-          title: "Lista de Reportes",
+          title: "Assigned Tasks",
           url: "#",
         },
         {
-          title: "Llenar Reportes",
-          url: "#",
+          title: "Equipment List",
+          url: "/dashboard/asset",
+        },
+        {
+          title: "Tool Strings / Assemblies",
+          url: "/dashboard/asset",
+        },
+        {
+          title: "Runs",
+          url: "/dashboard/runs",
         }
       ],
     },
     {
-      title: "Configuracion",
+      title: "Docs",
+      url: "#",
+      icon:FootprintsIcon,
+      items: [
+        {
+          title: "Introduction",
+          url: "#",
+        },
+        {
+          title: "Use Guide",
+          url: "#",
+        },
+        
+
+      ],
+    },
+    {
+      title: "Settings",
       url: "#",
       icon: Settings2,
       items: [
+        
         {
-          title: "Permisos",
+          title: "Permisos de Usuarios",
           url: "#",
-        }
+        },
       ],
     },
   ],
-  
+  projects: [
+    {
+      name: "Design Engineering",
+      url: "#",
+      icon: Frame,
+    },
+    {
+      name: "Sales & Marketing",
+      url: "#",
+      icon: PieChart,
+    },
+    {
+      name: "Travel",
+      url: "#",
+      icon: Map,
+    },
+  ],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-
-
-
   return (
-    <Sidebar {...props}>
+    <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
