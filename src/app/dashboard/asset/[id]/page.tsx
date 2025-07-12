@@ -20,20 +20,35 @@ export default function AssetPage({ params }: { params: Promise<{ id: string }> 
   } = useGetEquipmentData(id);
 
     return (
-        <div className="w-full min-h-screen p-8 bg-white flex flex-col items-center justify-start">
+        <div className="m-10 p-5 rounded-lg bg-white shadow-md">
             {loading ? (
-                <div className="flex justify-center items-center h-40 w-full">
+                <div className="flex justify-center items-center h-40">
                     <span className="text-gray-500">Loading...</span>
                 </div>
             ) : (
-                <AssetForm
-                    isEditable={isEditable}
-                    setIsEditable={setIsEditable}
-                    equipmentDetails={equipmentDetails as EquipmentDetails}
-                    listOfTemplates={templates}
-                    isTemplatesListLoading={templateListLoading}
-                    isTemplatesListError={templateListError ? true : false}
-                />
+                <>
+                  <AssetForm
+                      isEditable={isEditable}
+                      setIsEditable={setIsEditable}
+                      equipmentDetails={equipmentDetails as EquipmentDetails}
+                      listOfTemplates={templates.map(t => ({
+                        value: String(t.value),
+                        label: t.label
+                      }))}
+                      isTemplatesListLoading={templateListLoading}
+                      isTemplatesListError={templateListError ? true : false}
+                  />
+                  <div>
+                      <AssetTable
+                          data={children}
+                          editing={!isEditable}
+                          onEdit={(id, field, value) => {
+                              console.log("Edit action", id, field, value);
+                              // Implement your edit logic here
+                          }}
+                      />
+                  </div>
+                </>
             )}
         </div>
     );
