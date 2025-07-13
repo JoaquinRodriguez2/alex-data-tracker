@@ -23,3 +23,26 @@ export function useGetAssetChildren(parentId: string) {
 
   return {children, loading, error };
 }
+
+export function useSaveAssetChildren(parentId: string, children: EquipmentRelation[]) {
+  const [saving, setSaving] = useState<boolean>(false);
+  const [saveError, setSaveError] = useState<Error | null>(null);
+
+  const saveChildren = async () => {
+    if (!parentId || !children.length) return;
+
+    setSaving(true);
+    setSaveError(null);
+
+    try {
+      // Assuming there's a function to save children
+      await saveAssetChildren(parentId, children);
+    } catch (err) {
+      setSaveError(err as Error);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return { saveChildren, saving, saveError };
+}
