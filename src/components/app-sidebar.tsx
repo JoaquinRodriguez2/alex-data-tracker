@@ -105,7 +105,7 @@ const data = {
       icon: Lightbulb,
       items: [
         {
-          title: "Test",
+          title: "My Test",
           url: "#",
         },
         {

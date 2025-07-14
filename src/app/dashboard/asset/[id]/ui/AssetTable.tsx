@@ -70,7 +70,7 @@ export function AssetTable({ data, editing, onEdit }: AssetTableProps) {
       cell: ({ row }) =>
         editing ? (
           <input
-            value={row.original.children_template.name}
+            value={row.original.children_template?.name ?? ""}
             onChange={e =>
               onEdit?.(row.original.id, "children_template", {
                 ...row.original.children_template,
@@ -83,7 +83,7 @@ export function AssetTable({ data, editing, onEdit }: AssetTableProps) {
             style={{ cursor: "pointer", color: "#2563eb" }}
             onClick={() => handleCellClick(row.original, "children_template")}
           >
-            {row.original.children_template.name}
+            {row.original.children_template?.name ?? "N/A"}
           </span>
         ),
     },
@@ -101,7 +101,7 @@ export function AssetTable({ data, editing, onEdit }: AssetTableProps) {
             }
           }}
         >
-          {row.original.child_id ? row.original.child_id.part_number : "N/A"}
+          {row.original.child_id?.part_number ?? "N/A"}
         </span>
       ),
     },
@@ -119,7 +119,7 @@ export function AssetTable({ data, editing, onEdit }: AssetTableProps) {
             }
           }}
         >
-          {row.original.child_id ? row.original.child_id.serial_number : "N/A"}
+          {row.original.child_id?.serial_number ?? "N/A"}
         </span>
       ),
     },
