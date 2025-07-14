@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import {
   Form,
   FormControl,
@@ -12,13 +12,18 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { Save, Trash2, Hash, Pencil } from "lucide-react";
+import { Save, Trash2, Hash, Pencil, Loader } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { EquipmentDetails } from "../types";
 import Select from "react-select";
 import AsyncSelect from "react-select/async";
 import { searchTemplates } from "../calls/searchTemplates";
+import { updateEquipment } from "../calls/editAssetChildren";
+import { toast } from "sonner";
+import supabase from "@/utils/SupabaseConfig";
+import { getParentIdByChildId } from "../calls/getParentRelationByChildId";
+import { useRouter } from "next/navigation"; // Or use react-router-dom if not Next.js
 
 type AssetFormProps = {
   isEditable: boolean;
@@ -35,8 +40,36 @@ export default function AssetForm({
   equipmentDetails,
   listOfTemplates,
   isTemplatesListLoading = false,
-  isTemplatesListError = false
+  isTemplatesListError = false,
 }: AssetFormProps) {
+  // Estado para los datos del padre
+  const [parentInfo, setParentInfo] = useState<{ name: string; serial_number: string; id: string } | null>(null);
+  const router = useRouter();
+  React.useEffect(() => {
+    async function fetchParent() {
+      if (equipmentDetails?.id) {
+        const pid = await getParentIdByChildId(equipmentDetails.id);
+        if (pid) {
+          const { data, error } = await supabase
+            .from("equipments")
+            .select("name, serial_number")
+            .eq("id", pid)
+            .maybeSingle();
+          if (!error && data) {
+            setParentInfo({ name: data.name, serial_number: data.serial_number, id: pid });
+          } else {
+            setParentInfo(null);
+          }
+        } else {
+          setParentInfo(null);
+        }
+      } else {
+        setParentInfo(null);
+      }
+    }
+    fetchParent();
+  }, [equipmentDetails?.id]);
+
   const formSchema = z.object({
     "text-input-0": z
       .string()
@@ -49,6 +82,7 @@ export default function AssetForm({
     "text-input-2": z.string().min(1, { message: "This field is required" }),
     "text-input-5": z.string().min(1, { message: "This field is required" }),
     "switch-0": z.boolean().default(false).optional(),
+    "text-input-6": z.string().optional() // Parent equipment, can be null
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -59,6 +93,8 @@ export default function AssetForm({
       "text-input-2": equipmentDetails?.equipment_template_id || "",
       "text-input-5": equipmentDetails?.part_number || "",
       "switch-0": equipmentDetails?.main_equipment || false,
+      "text-input-6": parentInfo?.name || "No tiene un padre",
+
     },
   });
 
@@ -71,17 +107,10 @@ export default function AssetForm({
         "text-input-2": equipmentDetails.part_number || "",
         "text-input-5": equipmentDetails.equipment_template_id || "",
         "switch-0": equipmentDetails.main_equipment || false,
+        "text-input-6": parentInfo?.name || "No tiene un padre",
       });
     }
   }, [equipmentDetails, form]);
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      setIsEditable(true);
-    } catch (error) {
-      console.error("Error saving form:", error);
-    }
-  }
 
   function onReset() {
     form.reset();
@@ -90,11 +119,39 @@ export default function AssetForm({
 
   // Opciones de ejemplo para el autocompletado
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    // Map form fields to database columns
+    const values = form.getValues();
+    const updatePayload = {
+      name: values["text-input-0"],
+      serial_number: values["text-input-1"],
+      equipment_template_id: values["text-input-5"],
+      part_number: values["text-input-2"],
+      main_equipment: values["switch-0"],
+    };
+
+    const updated = await updateEquipment(equipmentDetails?.id, updatePayload);
+    if (!updated) {
+      setError("Failed to update equipment.");
+      toast.error("Failed to update equipment. Please check your data and try again.");
+    } else {
+      toast.success("Equipment updated successfully.");
+      // Optionally show success or refresh data
+    }
+    setLoading(false);
+  };
 
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={handleSubmit}
         onReset={onReset}
         className="space-y-8 @container"
       >
@@ -150,9 +207,14 @@ export default function AssetForm({
                       className="w-full cursor-pointer"
                       type="submit"
                       variant="default"
+                      disabled={loading}
                     >
-                      <Save className="size-4" strokeWidth="2" />
-                      Save
+                      {
+                        !loading
+                        ? <Save className="size-4" strokeWidth="2" />
+                        : <Loader className="size-4 animate-spin" strokeWidth="2" />
+                      }
+                      {loading ? "Updating..." : "Save"}
                     </Button>
                   </FormControl>
                   <FormMessage />
@@ -326,12 +388,13 @@ export default function AssetForm({
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
             name="switch-0"
             disabled={isEditable}
             render={({ field }) => (
-              <FormItem className="col-span-12 col-start-auto flex self-end flex-col gap-2 space-y-0 items-start">
+              <FormItem className="pt-4 col-span-12 col-start-auto flex self-end flex-col gap-2 space-y-0 items-start">
                 <FormLabel className="hidden shrink-0">
                   Main Equipment
                 </FormLabel>
@@ -364,6 +427,31 @@ export default function AssetForm({
               </FormItem>
             )}
           />
+          {/* Campo para mostrar el padre */}
+          <FormItem className="col-span-6 col-start-auto flex flex-col gap-2">
+            <FormLabel className="flex shrink-0">Padre</FormLabel>
+            <FormControl>
+              <Input
+                type="text"
+                value={
+                  parentInfo
+                    ? `[${parentInfo.serial_number}] ${parentInfo.name}`
+                    : "Sin padre"
+                }
+                readOnly
+                className={`ps-9 cursor-pointer`}
+                placeholder="Sin padre"
+                onClick={() => {
+                  if (parentInfo && parentInfo.id) {
+                    router.push(`${parentInfo.id}`);
+                  }
+                }}
+                style={{ pointerEvents: parentInfo ? "auto" : "none" }}
+                tabIndex={parentInfo ? 0 : -1}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
         </div>
       </form>
     </Form>

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
+import { createEquipmentRelations } from "./calls/createAssetChildren";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -12,7 +13,6 @@ interface Equipment {
   serial_number: string;
   part_number: string | null;
   equipment_template_id: string;
-  parent_id: string | null;
   main_equipment: boolean; // Nuevo campo
 }
 
@@ -143,7 +143,6 @@ const CreateEquipmentPage: React.FC = () => {
     serial_number: "",
     part_number: "",
     equipment_template_id: "",
-    parent_id: "",
     main_equipment: false, // Inicializa como false
   });
   const [saving, setSaving] = useState(false);
@@ -173,15 +172,16 @@ const CreateEquipmentPage: React.FC = () => {
           serial_number: formData.serial_number,
           part_number: formData.part_number || null,
           equipment_template_id: formData.equipment_template_id,
-          parent_id: formData.parent_id || null,
           main_equipment: formData.main_equipment,
         })
         .select()
         .single();
 
       if (error) throw error;
-
-      router.push("../asset");
+      const inserted_id = inserted.id;
+      const templateID = inserted.equipment_template_id;
+      createEquipmentRelations(inserted_id, templateID);
+      router.push(`../asset/${inserted_id}`);
     } catch (err: any) {
       setError(err.message || "Failed to create equipment");
     } finally {
@@ -275,16 +275,6 @@ const CreateEquipmentPage: React.FC = () => {
               Seleccionar
             </button>
           </div>
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Parent Equipment</label>
-          <input
-            className="w-full border rounded px-3 py-2 bg-gray-100"
-            value={formData.parent_id || ""}
-            name="parent_id"
-            readOnly
-            disabled
-          />
         </div>
         <div>
           <div className="flex items-center">

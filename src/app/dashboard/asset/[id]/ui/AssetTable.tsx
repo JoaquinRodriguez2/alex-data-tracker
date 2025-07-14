@@ -3,6 +3,11 @@ import { useRouter } from "next/navigation"; // Or use react-router-dom if not N
 import { DataTable } from "@/components/ui/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { EquipmentRelation } from "../types";
+import { SelectChildModal } from "./SelectChildModal";
+import { updateRelationChild } from "../calls/editAssetChildren";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { fetchAllEquipments } from "../calls/fetchAllEquipments";
 
 interface AssetTableProps {
   data: EquipmentRelation[];
@@ -20,16 +25,46 @@ export function AssetTable({ data, editing, onEdit }: AssetTableProps) {
     if (editing) return;
     // Example navigation logic:
     if (field === "child_id") {
-      router.push(`/dashboard/equipment/${row.child_id.id}`);
+      router.push(`${row.child_id.id}`);
     } else if (field === "children_template") {
-      router.push(`/dashboard/template/${row.children_template.id}`);
+      router.push(`asset/${row.children_template.id}`);
     } else {
-      router.push(`/dashboard/asset/${row.id}`);
+      router.push(`asset/${row.id}`);
+    }
+  };
+
+  // Modal state
+  const [modalOpen, setModalOpen] = React.useState(false);
+  const [selectedRelationId, setSelectedRelationId] = React.useState<string | null>(null);
+
+  // Dummy tree data, replace with your actual tree fetch logic
+  const [treeData, setTreeData] = React.useState<TreeNode[]>([]);
+
+  // Open modal to select new child
+  const handleChangeChild = async (relationId: string) => {
+    setSelectedRelationId(relationId);
+    setModalOpen(true);
+    // Fetch all equipments and set as treeData
+    const equipments = await fetchAllEquipments();
+    setTreeData(equipments); // If you want a flat list, or build a tree if needed
+  };
+
+  // Handle selection from modal
+  const handleSelectChild = async (equipment: Equipment) => {
+    if (!selectedRelationId) return;
+    const updated = await updateRelationChild(selectedRelationId, equipment.id);
+    if (updated) {
+      toast.success("Child updated!");
+      setModalOpen(false);
+      setSelectedRelationId(null);
+      // Optionally refresh data here
+    } else {
+      toast.error("Failed to update child.");
     }
   };
 
   const columns: ColumnDef<EquipmentRelation>[] = [
-        {
+    {
       accessorKey: "children_template",
       header: "Template",
       cell: ({ row }) =>
@@ -55,51 +90,50 @@ export function AssetTable({ data, editing, onEdit }: AssetTableProps) {
     {
       accessorKey: "child_id",
       header: "P/N",
-      cell: ({ row }) =>
-        editing ? (
-          <input
-            value={row.original.child_id.part_number}
-            onChange={e =>
-              onEdit?.(row.original.id, "child_id", {
-                ...row.original.child_id.part_number,
-                part_number: e.target.value,
-              })
+      cell: ({ row }) => (
+        <span
+          style={{ cursor: "pointer", color: editing ? "#16a34a" : "#2563eb" }}
+          onClick={() => {
+            if (editing) {
+              handleChangeChild(row.original.id);
+            } else {
+              handleCellClick(row.original, "child_id");
             }
-          />
-        ) : (
-          <span
-            style={{ cursor: "pointer", color: "#2563eb" }}
-            onClick={() => handleCellClick(row.original, "child_id")}
-          >
-            {row.original.child_id.part_number}
-          </span>
-        ),
+          }}
+        >
+          {row.original.child_id ? row.original.child_id.part_number : "N/A"}
+        </span>
+      ),
     },
-
     {
       accessorKey: "child_id.serial_number",
       header: "Child S/N",
-      cell: ({ row }) =>
-        editing ? (
-          <input
-            value={row.original.child_id.serial_number}
-            onChange={e =>
-              onEdit?.(row.original.id, "child_id", e.target.value)
+      cell: ({ row }) => (
+        <span
+          style={{ cursor: "pointer", color: editing ? "#16a34a" : "#2563eb" }}
+          onClick={() => {
+            if (editing) {
+              handleChangeChild(row.original.id);
+            } else {
+              handleCellClick(row.original, "child_id");
             }
-          />
-        ) : (
-          <span
-            style={{ cursor: "pointer", color: "#2563eb" }}
-            onClick={() => handleCellClick(row.original, "child_id")}
-          >
-            {row.original.child_id.serial_number}
-          </span>
-        ),
+          }}
+        >
+          {row.original.child_id ? row.original.child_id.serial_number : "N/A"}
+        </span>
+      ),
     },
     // Add more columns as needed
   ];
 
   return (
-    <DataTable columns={columns} data={data} />
+    <>
+      <DataTable columns={columns} data={data} />
+      <SelectChildModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onSelect={handleSelectChild}
+      />
+    </>
   );
 }

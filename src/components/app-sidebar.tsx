@@ -9,7 +9,8 @@ import {
   Settings2,
   CableIcon,
   BookOpenIcon,
-  FootprintsIcon
+  FootprintsIcon,
+  Lightbulb
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -94,6 +95,30 @@ const data = {
           title: "Use Guide",
           url: "#",
         },
+        
+
+      ],
+    },
+    {
+      title: "Training",
+      url: "#",
+      icon: Lightbulb,
+      items: [
+        {
+          title: "Test",
+          url: "#",
+        },
+        {
+          title: "My Classes",
+          url: "#",
+        },
+        {
+          title: "My Certifications",
+          url: "#",
+        },{
+          title: "HR/CFA Management",
+          url: "#",
+        }
         
 
       ],

@@ -19,8 +19,8 @@ export function useDrillingOperation(id: string) {
     setLoading(true);
     setError(null);
     try {
-      await postDrillingOperation(id, values);
-      setData(values);
+      await postDrillingOperation(id, values); // Send all values, not just changed
+      setData({ ...data, ...values });
     } catch (e: any) {
       setError(e.message);
     } finally {
