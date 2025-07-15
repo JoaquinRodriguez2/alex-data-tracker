@@ -19,7 +19,7 @@ export function EquipmentsTable({ equipments, onDelete }: { equipments: any[], o
         </thead>
         <tbody>
           {equipments.map(eq => (
-            <tr key={eq.parent_id}>
+            <tr key={eq.equipments?.id}>
               <td>
                 <button onClick={() => onDelete(eq.parent_id)}>
                   <Trash2 className="text-red-500" size={18} />
