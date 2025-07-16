@@ -28,9 +28,7 @@ export async function createEquipment() {
     }
 }
 
-// This functions creates the relation given a template ID and a parent ID
-// If in template_relations the given template has 5 children with 5 specific Templates
-// it will create 5 relations with the parent ID and the template ID
+
 export async function createEquipmentRelations(parentID: string, templateID: string) {
     try {
         // Step 1: Get all child templates for the given templateID

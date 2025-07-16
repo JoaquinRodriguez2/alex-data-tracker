@@ -66,7 +66,7 @@ const EquipmentTemplateSelector: React.FC<{
         >
           ✕
         </button>
-        <h2 className="text-xl font-bold mb-4">Seleccionar Template</h2>
+        <h2 className="text-xl font-bold mb-4">Select an Structure</h2>
         <input
           className="border px-3 py-2 rounded w-full mb-4"
           placeholder="Buscar por nombre o part number..."
@@ -258,7 +258,7 @@ const CreateEquipmentPage: React.FC = () => {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Equipment Template</label>
+          <label className="block text-sm font-medium mb-1">Equipment Structure</label>
           <div className="flex gap-2">
             <input
               className="w-full border rounded px-3 py-2 bg-gray-100"

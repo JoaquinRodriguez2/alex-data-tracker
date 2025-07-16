@@ -30,7 +30,7 @@ async function getChildrenTemplates(id: string) {
     console.log("Error fetching child templates:", error);
     throw error
   };
-  console.log("Child templates data:", data);
+  console.log("Structure:", data);
   return data?.map((row: any) => row.equipment_templates) || [];
 }
 
@@ -99,7 +99,7 @@ function DetailsCard({ assetTemplate, isEditing, setIsEditing, form, setForm, ha
   return (
     <div className="bg-white rounded shadow p-8 mb-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Asset Template Details</h1>
+        <h1 className="text-2xl font-bold">Asset Structure Details</h1>
         {!isEditing ? (
           <button
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
@@ -197,7 +197,7 @@ function ChildrenCard({ childrenTemplates, onAdd, onRemove, allTemplates, loadin
 
   return (
     <div className="bg-white rounded shadow p-8 mb-6">
-      <h2 className="text-xl font-bold mb-4">Children Templates</h2>
+      <h2 className="text-xl font-bold mb-4">Sub Components</h2>
       {/* Selector y botón arriba */}
       <div className="flex flex-col sm:flex-row sm:space-x-2 mb-4 gap-2">
         <select
@@ -221,7 +221,7 @@ function ChildrenCard({ childrenTemplates, onAdd, onRemove, allTemplates, loadin
             setSelected("");
           }}
         >
-          Add Child
+          Add Component
         </button>
       </div>
       {loading ? (
@@ -263,7 +263,7 @@ function ParentsCard({ parentTemplates, loading }) {
   const router = useRouter();
   return (
     <div className="bg-white rounded shadow p-8 mb-6">
-      <h2 className="text-xl font-bold mb-4">Parent Templates</h2>
+      <h2 className="text-xl font-bold mb-4">Is a Component Of</h2>
       {loading ? (
         <p>Loading...</p>
       ) : (

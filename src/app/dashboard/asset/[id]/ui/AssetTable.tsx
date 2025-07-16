@@ -54,7 +54,7 @@ export function AssetTable({ data, editing, onEdit }: AssetTableProps) {
     if (!selectedRelationId) return;
     const updated = await updateRelationChild(selectedRelationId, equipment.id);
     if (updated) {
-      toast.success("Child updated!");
+      toast.success("Sub component updated!");
       setModalOpen(false);
       setSelectedRelationId(null);
       // Optionally refresh data here
@@ -66,7 +66,7 @@ export function AssetTable({ data, editing, onEdit }: AssetTableProps) {
   const columns: ColumnDef<EquipmentRelation>[] = [
     {
       accessorKey: "children_template",
-      header: "Template",
+      header: "Estructuras",
       cell: ({ row }) =>
         editing ? (
           <input
@@ -101,13 +101,13 @@ export function AssetTable({ data, editing, onEdit }: AssetTableProps) {
             }
           }}
         >
-          {row.original.child_id?.part_number ?? "N/A"}
+          {row.original.children_template?.part_number ?? "N/A"}
         </span>
       ),
     },
     {
       accessorKey: "child_id.serial_number",
-      header: "Child S/N",
+      header: "Sub Component S/N",
       cell: ({ row }) => (
         <span
           style={{ cursor: "pointer", color: editing ? "#16a34a" : "#2563eb" }}
@@ -119,7 +119,7 @@ export function AssetTable({ data, editing, onEdit }: AssetTableProps) {
             }
           }}
         >
-          {row.original.child_id?.serial_number ?? "N/A"}
+          {row.original.child_id?.serial_number ?? "[Not Assigned]"}
         </span>
       ),
     },

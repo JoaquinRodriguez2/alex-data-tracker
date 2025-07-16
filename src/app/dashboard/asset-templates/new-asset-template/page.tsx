@@ -50,7 +50,7 @@ export default function NewAssetTemplate() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
       <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold mb-6 text-gray-800 text-center">
-          Create Equipment Template
+          Create Equipment Structure
         </h2>
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
@@ -64,7 +64,7 @@ export default function NewAssetTemplate() {
               onChange={handleChange}
               required
               className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Template Name"
+              placeholder="Structure Name"
             />
           </div>
           <div>
@@ -77,7 +77,7 @@ export default function NewAssetTemplate() {
               onChange={handleChange}
               rows={3}
               className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Template Description"
+              placeholder="Structure Description"
             />
           </div>
           <div>
@@ -99,7 +99,7 @@ export default function NewAssetTemplate() {
             disabled={loading}
             className="w-full bg-blue-600 text-white py-2 rounded-md font-semibold hover:bg-blue-700 transition disabled:opacity-50"
           >
-            {loading ? "Creating..." : "Create Template"}
+            {loading ? "Creating..." : "Create Structure"}
           </button>
         </form>
       </div>

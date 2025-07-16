@@ -287,7 +287,7 @@ export default function AssetForm({
             name="text-input-5"
             render={({ field }) => (
               <FormItem className="col-span-6 col-start-auto flex self-end flex-col gap-2 space-y-0 items-start">
-                <FormLabel className="flex shrink-0">Template</FormLabel>
+                <FormLabel className="flex shrink-0">Structure</FormLabel>
                 <div className="w-full">
                   <FormControl>
                     <AsyncSelect
@@ -301,7 +301,7 @@ export default function AssetForm({
                           : null
                       }
                       onChange={(option) => field.onChange(option ? option.value : "")}
-                      placeholder="Busca un Template"
+                      placeholder="Search an Structure"
                       isClearable
                       className="w-full"
                       classNamePrefix="react-select"
@@ -429,14 +429,14 @@ export default function AssetForm({
           />
           {/* Campo para mostrar el padre */}
           <FormItem className="col-span-6 col-start-auto flex flex-col gap-2">
-            <FormLabel className="flex shrink-0">Padre</FormLabel>
+            <FormLabel className="flex shrink-0">Assembly</FormLabel>
             <FormControl>
               <Input
                 type="text"
                 value={
                   parentInfo
                     ? `[${parentInfo.serial_number}] ${parentInfo.name}`
-                    : "Sin padre"
+                    : "Does not Have an Associated Assembly"
                 }
                 readOnly
                 className={`ps-9 cursor-pointer`}

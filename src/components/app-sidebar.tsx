@@ -40,21 +40,17 @@ const data = {
   ],
   navMain: [
     {
-      title: "Templates",
+      title: "Structures",
       url: "#",
       icon: BookOpenIcon,
       isActive: true,
       items: [
         {
-          title: "Equipment Templates",
+          title: "Equipment Structures",
           url: "/dashboard/asset-templates",
         },
         {
-          title: "Tracked Fields Templates",
-          url: "/dashboard/tracked-fields",
-        },
-        {
-          title: "Procedures Templates",
+          title: "Procedures Structures",
           url: "#",
         },
       ],

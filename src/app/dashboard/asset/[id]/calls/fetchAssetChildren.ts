@@ -15,6 +15,10 @@ export async function fetchAssetChildren(parentId: string): Promise<EquipmentRel
   if (error) {
     return [];
   }
+
+
+
+
+
   return data as EquipmentRelation[];
 }
-

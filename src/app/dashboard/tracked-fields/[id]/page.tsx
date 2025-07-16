@@ -113,7 +113,7 @@ return (
         <div className="w-full max-w-lg bg-white rounded-xl shadow-lg p-8 md:p-10 border border-gray-200">
             <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl md:text-3xl font-bold text-gray-800">
-                    {isNew ? 'Create' : 'Edit'} Tracked Field Template
+                    {isNew ? 'Create' : 'Edit'} Tracked Field Structure
                 </h2>
                 <button
                     type="button"
