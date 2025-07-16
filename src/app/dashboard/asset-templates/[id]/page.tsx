@@ -3,6 +3,7 @@ import supabase from "@/utils/SupabaseConfig";
 import { DataTable } from "@/components/ui/data-table";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import SubComponentSearchPopup from "./ui/SubComponentSearchPopup";
 
 // --- HOOKS Y SERVICIOS ---
 
@@ -283,8 +284,8 @@ function ParentsCard({ parentTemplates, loading }) {
 }
 
 // --- PÁGINA PRINCIPAL ---
-
-export default function AssetTemplateDetailsPage() {
+export default function AssetTemplatePage() {
+  
   const { id } = useParams();
   const templateId = String(id);
 
@@ -298,6 +299,8 @@ export default function AssetTemplateDetailsPage() {
   const [loadingParents, setLoadingParents] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [form, setForm] = useState({ name: "", description: "", part_number: "", is_active: true });
+  // Popup de búsqueda
+  const [searchPopupOpen, setSearchPopupOpen] = useState(false);
 
   // Cargar datos iniciales
   useEffect(() => {
@@ -336,6 +339,14 @@ export default function AssetTemplateDetailsPage() {
   // Handlers para editar hijos/padres
   const handleAddChild = async (childId: string) => {
     await addParent(childId, templateId); // childId es el hijo, templateId es el padre
+    getChildrenTemplates(templateId).then(setChildrenTemplates);
+  };
+
+  // Nuevo: agregar varios hijos desde el popup
+  const handleAddChildren = async (childIds: string[]) => {
+    for (const childId of childIds) {
+      await addParent(childId, templateId);
+    }
     getChildrenTemplates(templateId).then(setChildrenTemplates);
   };
 
@@ -398,6 +409,16 @@ export default function AssetTemplateDetailsPage() {
           handleSave={handleSave}
           handleCancel={handleCancel}
         />
+        {/* Botón para abrir el buscador de subcomponentes */}
+        <div className="mb-4 flex justify-end">
+          <button
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            onClick={() => setSearchPopupOpen(true)}
+            disabled={!isEditing}
+          >
+            Buscar y agregar Sub Componentes
+          </button>
+        </div>
         {/* Tarjeta 2: Hijos */}
         <ChildrenCard
           childrenTemplates={childrenTemplates}
@@ -406,6 +427,13 @@ export default function AssetTemplateDetailsPage() {
           allTemplates={allTemplates.filter((t) => t.id !== templateId)}
           loading={loadingChildren}
           isEditing={isEditing}
+        />
+        {/* Popup de búsqueda de subcomponentes */}
+        <SubComponentSearchPopup
+          open={searchPopupOpen}
+          onClose={() => setSearchPopupOpen(false)}
+          templates={allTemplates.filter((t) => t.id !== templateId && !childrenTemplates.some((c) => c.id === t.id))}
+          onAddChildren={handleAddChildren}
         />
         {/* Tarjeta 3: Padres */}
         <ParentsCard parentTemplates={parentTemplates} loading={loadingParents} />

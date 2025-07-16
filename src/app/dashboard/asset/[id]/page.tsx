@@ -10,6 +10,8 @@ import { AssetTable } from "./ui/AssetTable";
 import { getParentIdByChildId } from "./calls/getParentRelationByChildId";
 import { useRouter } from "next/navigation"; // Or use react-router-dom if not Next.js
 import { EquipmentTreeDialog } from "./test/TreeHierarchyView";
+import { Button } from "@/components/ui/button";
+import { Eye } from "lucide-react";
 
 export default function AssetPage({ params }: { params: Promise<{ id: string }> }) {
     const { isEditable, setIsEditable } = useEditableState(true);
@@ -43,13 +45,13 @@ export default function AssetPage({ params }: { params: Promise<{ id: string }> 
                 </div>
             ) : (
                 <>
-                  <div className="flex justify-end mb-4">
-                    <button
-                      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                  <div className="flex justify-start mb-4">
+                    <Button
+                      className="bg-gray-900 text-white rounded hover:bg-gray-400 transition flex justify-center items-center"
                       onClick={() => setHierarchyOpen(true)}
                     >
-                      Ver Jerarquía
-                    </button>
+                      <Eye size={16} className="inline mr-1" />
+                    </Button>
                   </div>
                   <AssetForm
                       isEditable={isEditable}

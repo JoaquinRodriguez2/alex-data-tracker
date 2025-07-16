@@ -79,7 +79,7 @@ export default function ListAssetTemplatePage() {
       <div className="mb-4">
         <input
           type="text"
-          placeholder="Buscar por nombre..."
+          placeholder="Buscar por nombre, descripción o part number..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full p-2 border rounded-lg shadow-sm focus:outline-none focus:ring focus:ring-blue-300"
@@ -131,7 +131,7 @@ export default function ListAssetTemplatePage() {
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50"
+              className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50 hover:bg-gray-300 cursor-pointer transition-colors duration-150"
             >
               Previous
             </button>
@@ -141,7 +141,7 @@ export default function ListAssetTemplatePage() {
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50"
+              className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50 hover:bg-gray-300 cursor-pointer transition-colors duration-150"
             >
               Next
             </button>
