@@ -12,6 +12,9 @@ import { useRouter } from "next/navigation"; // Or use react-router-dom if not N
 import { EquipmentTreeDialog } from "./test/TreeHierarchyView";
 import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react";
+import EquipmentViewer from "./components/EquipmentViewer";
+import { mockEquipmentData } from "./calls/mockDetails";
+import supabase from "@/utils/SupabaseConfig";
 
 export default function AssetPage({ params }: { params: Promise<{ id: string }> }) {
     const { isEditable, setIsEditable } = useEditableState(true);
@@ -21,7 +24,20 @@ export default function AssetPage({ params }: { params: Promise<{ id: string }> 
     const [parentEq, setParentEq] = React.useState<string | null>(null);
     const router = useRouter();
     const [hierarchyOpen, setHierarchyOpen] = useState(false);
+    const [loadingChildren, setLoadingChildren] = useState(false);
+    const [tree, setTree] = useState<any>(null);
 
+      React.useEffect(() => {
+        if (!open) return;
+        setLoadingChildren(true);
+        supabase
+          .rpc("get_equipment_children", { equipment_id: id })
+          .then(({ data, error }) => {
+            setTree(data);
+            console.log(data)
+            setLoadingChildren(false);
+          });
+      }, [id]);
 
     const {
     equipmentDetails,
@@ -66,14 +82,7 @@ export default function AssetPage({ params }: { params: Promise<{ id: string }> 
                       parentEq={null}
                   />
                   <div className="pt-5">
-                      <AssetTable
-                          data={children}
-                          editing={!isEditable}
-                          onEdit={(id, field, value) => {
-                              console.log("Edit action", id, field, value);
-                              // Implement your edit logic here
-                          }}
-                      />
+                    <EquipmentViewer equipmentData={tree} />
                   </div>
                 </>
             )}

@@ -52,9 +52,12 @@ async function getParentTemplates(id: string) {
 async function getAllTemplates() {
   const { data, error } = await supabase
     .from("equipment_templates")
-    .select("id, name, description")
+    .select("id, name, part_number,description")
     .eq("is_active", true);
-  if (error) throw error;
+  if (error) {
+    console.log(error)
+    throw error
+  };
   return data || [];
 }
 
@@ -198,33 +201,6 @@ function ChildrenCard({ childrenTemplates, onAdd, onRemove, allTemplates, loadin
 
   return (
     <div className="bg-white rounded shadow p-8 mb-6">
-      <h2 className="text-xl font-bold mb-4">Sub Components</h2>
-      {/* Selector y botón arriba */}
-      <div className="flex flex-col sm:flex-row sm:space-x-2 mb-4 gap-2">
-        <select
-          value={selected}
-          onChange={(e) => setSelected(e.target.value)}
-          className="border rounded px-2 py-1 flex-1"
-          disabled={!isEditing}
-        >
-          <option value="">Select template to add as child</option>
-          {available.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.name}
-            </option>
-          ))}
-        </select>
-        <button
-          className="bg-blue-600 text-white px-3 py-1 rounded disabled:opacity-50"
-          disabled={!selected || !isEditing}
-          onClick={() => {
-            onAdd(selected);
-            setSelected("");
-          }}
-        >
-          Add Component
-        </button>
-      </div>
       {loading ? (
         <p>Loading...</p>
       ) : (
@@ -285,7 +261,7 @@ function ParentsCard({ parentTemplates, loading }) {
 
 // --- PÁGINA PRINCIPAL ---
 export default function AssetTemplatePage() {
-  
+
   const { id } = useParams();
   const templateId = String(id);
 
@@ -333,8 +309,12 @@ export default function AssetTemplatePage() {
   }, [templateId]);
 
   useEffect(() => {
-    getAllTemplates().then(setAllTemplates);
+    setLoading(true);
+    getAllTemplates()
+      .then(setAllTemplates)
+      .finally(() => setLoading(false));
   }, []);
+
 
   // Handlers para editar hijos/padres
   const handleAddChild = async (childId: string) => {
@@ -432,7 +412,7 @@ export default function AssetTemplatePage() {
         <SubComponentSearchPopup
           open={searchPopupOpen}
           onClose={() => setSearchPopupOpen(false)}
-          templates={allTemplates.filter((t) => t.id !== templateId && !childrenTemplates.some((c) => c.id === t.id))}
+          templates={allTemplates}
           onAddChildren={handleAddChildren}
         />
         {/* Tarjeta 3: Padres */}

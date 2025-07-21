@@ -3,7 +3,7 @@ import supabase from "@/utils/SupabaseConfig";
 export async function searchTemplates(query: string) {
   const { data, error } = await supabase
     .from("equipment_templates")
-    .select("id, name")
+    .select("id, name,part_number")
     .ilike("name", `%${query}%`)
     .limit(10);
 
@@ -14,6 +14,6 @@ export async function searchTemplates(query: string) {
 
   return (data || []).map((t) => ({
     value: t.id,
-    label: `${t.id} - ${t.name}`,
+    label: `${t.id} - ${t.name} - ${t.part_number}`,
   }));
 }

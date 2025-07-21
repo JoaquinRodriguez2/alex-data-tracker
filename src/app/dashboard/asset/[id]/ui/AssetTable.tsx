@@ -123,7 +123,24 @@ export function AssetTable({ data, editing, onEdit }: AssetTableProps) {
         </span>
       ),
     },
-    // Add more columns as needed
+        {
+      accessorKey: "revision",
+      header: "Revision",
+      cell: ({ row }) => (
+        <span
+          style={{ cursor: "pointer", color: editing ? "#16a34a" : "#2563eb" }}
+          onClick={() => {
+            if (editing) {
+              handleChangeChild(row.original.id);
+            } else {
+              handleCellClick(row.original, "child_id");
+            }
+          }}
+        >
+          {row.original.child_id?.revision ?? "[Not Assigned]"}
+        </span>
+      ),
+    },
   ];
 
   return (

@@ -65,6 +65,7 @@ export function EquipmentTreeDialog({
       .rpc("get_equipment_children", { equipment_id: equipmentId })
       .then(({ data, error }) => {
         setTree(data);
+        console.log(data)
         setLoading(false);
       });
   }, [open, equipmentId]);

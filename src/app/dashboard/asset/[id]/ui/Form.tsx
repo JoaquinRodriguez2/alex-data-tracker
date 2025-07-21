@@ -82,7 +82,8 @@ export default function AssetForm({
     "text-input-2": z.string().min(1, { message: "This field is required" }),
     "text-input-5": z.string().min(1, { message: "This field is required" }),
     "switch-0": z.boolean().default(false).optional(),
-    "text-input-6": z.string().optional() // Parent equipment, can be null
+    "text-input-6": z.string().optional(), // Parent equipment, can be null
+    "text-input-7": z.string().optional(), // Revision field
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -94,7 +95,7 @@ export default function AssetForm({
       "text-input-5": equipmentDetails?.part_number || "",
       "switch-0": equipmentDetails?.main_equipment || false,
       "text-input-6": parentInfo?.name || "No tiene un padre",
-
+      "text-input-7": equipmentDetails?.revision || "",
     },
   });
 
@@ -108,6 +109,7 @@ export default function AssetForm({
         "text-input-5": equipmentDetails.equipment_template_id || "",
         "switch-0": equipmentDetails.main_equipment || false,
         "text-input-6": parentInfo?.name || "No tiene un padre",
+        "text-input-7": equipmentDetails.revision || "",
       });
     }
   }, [equipmentDetails, form]);
@@ -135,6 +137,7 @@ export default function AssetForm({
       equipment_template_id: values["text-input-5"],
       part_number: values["text-input-2"],
       main_equipment: values["switch-0"],
+      revision: values["text-input-7"],
     };
 
     const updated = await updateEquipment(equipmentDetails?.id, updatePayload);
@@ -383,6 +386,30 @@ export default function AssetForm({
                     </div>
                   </FormControl>
 
+                  <FormMessage />
+                </div>
+              </FormItem>
+            )}
+          />
+          {/* Revision field */}
+          <FormField
+            control={form.control}
+            name="text-input-7"
+            render={({ field }) => (
+              <FormItem className="col-span-6 col-start-auto flex self-end flex-col gap-2 space-y-0 items-start">
+                <FormLabel className="flex shrink-0">Revision</FormLabel>
+                <div className="w-full">
+                  <FormControl>
+                    <Input
+                      key="text-input-7"
+                      placeholder="Enter revision"
+                      type="text"
+                      id="text-input-7"
+                      className="ps-9"
+                      disabled={isEditable}
+                      {...field}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </div>
               </FormItem>

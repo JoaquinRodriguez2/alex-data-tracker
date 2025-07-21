@@ -13,6 +13,7 @@ export interface Equipment {
   serial_number: string;
   main_equipment: boolean;
   equipment_template_id: string;
+  revision?: string;
 
 }
 
@@ -31,4 +32,5 @@ export interface EquipmentDetails {
   serial_number: string;
   main_equipment: boolean;
   equipment_template_id: string;
+  revision?: string;
 }
