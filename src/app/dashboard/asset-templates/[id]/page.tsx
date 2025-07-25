@@ -24,7 +24,7 @@ async function getAssetTemplateById(id: string) {
 // Obtener hijos directos de la plantilla
 async function getChildrenTemplates(id: string) {
   const { data, error } = await supabase
-    .from("equipment_template_relations")
+    .from("equipment_template_relation")
     .select("child_id, equipment_templates:child_id(id, name, description,part_number)")
     .eq("parent_id", id);
   if (error) {
@@ -38,7 +38,7 @@ async function getChildrenTemplates(id: string) {
 // Obtener padres directos de la plantilla
 async function getParentTemplates(id: string) {
   const { data, error } = await supabase
-    .from("equipment_template_relations")
+    .from("equipment_template_relation")
     .select("parent_id, equipment_templates:parent_id(id, name, description,part_number)")
     .eq("child_id", id);
   if (error) {
@@ -64,7 +64,7 @@ async function getAllTemplates() {
 // Añadir padre
 async function addParent(childId: string, parentId: string) {
   const { error } = await supabase
-    .from("equipment_template_relations")
+    .from("equipment_template_relation")
     .insert([{ parent_id: parentId, child_id: childId }]);
   if (error) {
     console.log("Error adding parent:", error);
@@ -74,7 +74,7 @@ async function addParent(childId: string, parentId: string) {
 // Quitar padre
 async function removeParent(childId: string, parentId: string) {
   const { error } = await supabase
-    .from("equipment_template_relations")
+    .from("equipment_template_relation")
     .delete()
     .eq("parent_id", parentId)
     .eq("child_id", childId);

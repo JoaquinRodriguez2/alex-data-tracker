@@ -33,7 +33,7 @@ export async function createEquipmentRelations(parentID: string, templateID: str
     try {
         // Step 1: Get all child templates for the given templateID
         const { data: templateRelations, error: templateError } = await supabase
-            .from('equipment_template_relations')
+            .from('equipment_template_relation')
             .select('child_id')
             .eq('parent_id', templateID);
 
