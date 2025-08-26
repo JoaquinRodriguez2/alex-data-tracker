@@ -82,6 +82,7 @@ const EquipmentTemplateSelector: React.FC<{
               <th className="p-2 text-left">Nombre</th>
               <th className="p-2 text-left">Descripción</th>
               <th className="p-2 text-left">Part Number</th>
+              <th className="p-2 text-left">Position</th>
               <th className="p-2"></th>
             </tr>
           </thead>

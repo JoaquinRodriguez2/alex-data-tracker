@@ -68,6 +68,7 @@ export function EquipmentTreeDialog({
         console.log(data)
         setLoading(false);
       });
+      console.log("Fetching tree for equipmentId:", equipmentId);
   }, [open, equipmentId]);
 
   return (

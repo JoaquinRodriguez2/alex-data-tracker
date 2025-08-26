@@ -6,7 +6,6 @@ import { EquipmentRelation } from "../types";
 import { SelectChildModal } from "./SelectChildModal";
 import { updateRelationChild } from "../calls/editAssetChildren";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { fetchAllEquipments } from "../calls/fetchAllEquipments";
 
 interface AssetTableProps {
@@ -17,7 +16,7 @@ interface AssetTableProps {
 
 export function AssetTable({ data, editing, onEdit }: AssetTableProps) {
   const router = useRouter();
-
+  console.log("AssetTable data:", data);
   const handleCellClick = (
     row: EquipmentRelation,
     field: keyof EquipmentRelation

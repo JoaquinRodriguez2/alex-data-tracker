@@ -4,7 +4,7 @@ import { DataTable } from "@/components/ui/data-table";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import SubComponentSearchPopup from "./ui/SubComponentSearchPopup";
-
+import React from "react";
 // --- HOOKS Y SERVICIOS ---
 
 // Obtener detalles de la plantilla
@@ -24,21 +24,29 @@ async function getAssetTemplateById(id: string) {
 // Obtener hijos directos de la plantilla
 async function getChildrenTemplates(id: string) {
   const { data, error } = await supabase
-    .from("equipment_template_relations")
-    .select("child_id, equipment_templates:child_id(id, name, description,part_number)")
+    .from("equipment_template_relation")
+    .select("child_id, position, equipment_templates:child_id(id, name, description, part_number)")
     .eq("parent_id", id);
   if (error) {
     console.log("Error fetching child templates:", error);
-    throw error
-  };
+    throw error;
+  }
   console.log("Structure:", data);
-  return data?.map((row: any) => row.equipment_templates) || [];
+  const data_processed =
+    data?.map((row: any) => ({
+      ...row.equipment_templates,
+      position: row.position,
+    })) || [];
+  console.log("Processed Structure:", data_processed);
+  console.log("Not Processed Structure:", data);
+
+  return data_processed;
 }
 
 // Obtener padres directos de la plantilla
 async function getParentTemplates(id: string) {
   const { data, error } = await supabase
-    .from("equipment_template_relations")
+    .from("equipment_template_relation")
     .select("parent_id, equipment_templates:parent_id(id, name, description,part_number)")
     .eq("child_id", id);
   if (error) {
@@ -64,7 +72,7 @@ async function getAllTemplates() {
 // Añadir padre
 async function addParent(childId: string, parentId: string) {
   const { error } = await supabase
-    .from("equipment_template_relations")
+    .from("equipment_template_relation")
     .insert([{ parent_id: parentId, child_id: childId }]);
   if (error) {
     console.log("Error adding parent:", error);
@@ -74,7 +82,7 @@ async function addParent(childId: string, parentId: string) {
 // Quitar padre
 async function removeParent(childId: string, parentId: string) {
   const { error } = await supabase
-    .from("equipment_template_relations")
+    .from("equipment_template_relation")
     .delete()
     .eq("parent_id", parentId)
     .eq("child_id", childId);
@@ -191,13 +199,58 @@ function DetailsCard({ assetTemplate, isEditing, setIsEditing, form, setForm, ha
 }
 
 // Tarjeta de hijos (treeview simple)
-function ChildrenCard({ childrenTemplates, onAdd, onRemove, allTemplates, loading, isEditing }) {
+function ChildrenCard({ childrenTemplates, onAdd, onRemove, allTemplates, loading, isEditing, positionEdits, setPositionEdits, onPositionChange }) {
   const [selected, setSelected] = useState("");
   const router = useRouter();
   // Excluir los hijos actuales y el propio nodo de la lista de posibles hijos
-  const available = allTemplates.filter(
-    (t) => !childrenTemplates.some((c) => c.id === t.id)
-  );
+  // Track which input is focused
+  const [focusedChildId, setFocusedChildId] = React.useState<string | null>(null);
+  const inputRefs = React.useRef<{ [key: string]: HTMLInputElement | null }>({});
+
+  React.useEffect(() => {
+    if (focusedChildId && inputRefs.current[focusedChildId]) {
+      inputRefs.current[focusedChildId]?.focus();
+    }
+  });
+
+  const columns = React.useMemo(() => [
+    { accessorKey: "name", header: "Nombre" },
+    { accessorKey: "part_number", header: "P/N" },
+    {
+      accessorKey: "position",
+      header: "Posición",
+      cell: ({ row }) =>
+        isEditing ? (
+          <input
+            type="text"
+            ref={el => { inputRefs.current[row.original.id] = el; }}
+            value={positionEdits[row.original.id] ?? row.original.position ?? ""}
+            onFocus={() => setFocusedChildId(row.original.id)}
+            onBlur={() => setFocusedChildId(null)}
+            onChange={e => onPositionChange(row.original.id, e.target.value)}
+            className="border rounded px-2 py-1 w-24"
+          />
+        ) : (
+          <span>{row.original.position}</span>
+        ),
+    },
+    {
+      id: "actions",
+      header: "Acciones",
+      cell: ({ row }) => (
+        <button
+          className="text-red-600 text-xs"
+          onClick={e => {
+            e.stopPropagation();
+            onRemove(row.original.id);
+          }}
+          disabled={!isEditing}
+        >
+          Remove
+        </button>
+      ),
+    },
+  ], [isEditing, positionEdits, onPositionChange, onRemove]);
 
   return (
     <div className="bg-white rounded shadow p-8 mb-6">
@@ -205,30 +258,15 @@ function ChildrenCard({ childrenTemplates, onAdd, onRemove, allTemplates, loadin
         <p>Loading...</p>
       ) : (
         <DataTable
-          columns={[
-            { accessorKey: "name", header: "Nombre" },
-            { accessorKey: "part_number", header: "P/N" },
-            { accessorKey: "description", header: "Descripción" },
-            {
-              id: "actions",
-              header: "Acciones",
-              cell: ({ row }) => (
-                <button
-                  className="text-red-600 text-xs"
-                  onClick={e => {
-                    e.stopPropagation();
-                    onRemove(row.original.id);
-                  }}
-                  disabled={!isEditing}
-                >
-                  Remove
-                </button>
-              ),
-            },
-          ]}
+          columns={columns}
           data={childrenTemplates}
           rowClassName="cursor-pointer hover:bg-blue-50"
-          onRowClick={row => router.push(`/dashboard/asset-templates/${row.id}`)}
+          getRowId={row => row.id}
+          onRowClick={row => {
+            if (!isEditing) {
+              router.push(`/dashboard/asset-templates/${row.id}`);
+            }
+          }}
         />
       )}
     </div>
@@ -277,6 +315,8 @@ export default function AssetTemplatePage() {
   const [form, setForm] = useState({ name: "", description: "", part_number: "", is_active: true });
   // Popup de búsqueda
   const [searchPopupOpen, setSearchPopupOpen] = useState(false);
+  // Edición de posición de hijos
+  const [positionEdits, setPositionEdits] = useState<{ [childId: string]: string }>({});
 
   // Cargar datos iniciales
   useEffect(() => {
@@ -297,9 +337,47 @@ export default function AssetTemplatePage() {
   useEffect(() => {
     setLoadingChildren(true);
     getChildrenTemplates(templateId)
-      .then(setChildrenTemplates)
+      .then((children) => {
+        setChildrenTemplates(children);
+        // Reset position edits when children reload
+        const initialPositions: { [childId: string]: string } = {};
+        children.forEach((child: any) => {
+          initialPositions[child.id] = child.position ?? "";
+        });
+        setPositionEdits(initialPositions);
+      })
       .finally(() => setLoadingChildren(false));
   }, [templateId]);
+  // Handler para editar la posición localmente
+  const handlePositionChange = (childId: string, value: string) => {
+    setPositionEdits(prev => ({ ...prev, [childId]: value }));
+  };
+
+  // Guardar posiciones editadas en la base de datos
+  const handleSavePositions = async () => {
+    for (const child of childrenTemplates) {
+      const newPosition = positionEdits[child.id];
+      if (newPosition !== undefined && newPosition !== child.position) {
+        // Actualizar solo si cambió
+        await updateChildPosition(templateId, child.id, newPosition);
+      }
+    }
+    // Refrescar hijos
+    getChildrenTemplates(templateId).then(setChildrenTemplates);
+  };
+
+  // Actualizar posición de hijo en la base de datos
+  async function updateChildPosition(parentId: string, childId: string, position: string) {
+    const { error } = await supabase
+      .from("equipment_template_relation")
+      .update({ position })
+      .eq("parent_id", parentId)
+      .eq("child_id", childId);
+    if (error) {
+      console.log("Error updating child position:", error);
+      throw error;
+    }
+  }
 
   useEffect(() => {
     setLoadingParents(true);
@@ -349,6 +427,7 @@ export default function AssetTemplatePage() {
   const handleSave = async () => {
     try {
       await updateAssetTemplate(templateId, form);
+      await handleSavePositions();
       setIsEditing(false);
       // Refrescar datos
       getAssetTemplateById(templateId).then((data) => {
@@ -407,6 +486,9 @@ export default function AssetTemplatePage() {
           allTemplates={allTemplates.filter((t) => t.id !== templateId)}
           loading={loadingChildren}
           isEditing={isEditing}
+          positionEdits={positionEdits}
+          setPositionEdits={setPositionEdits}
+          onPositionChange={handlePositionChange}
         />
         {/* Popup de búsqueda de subcomponentes */}
         <SubComponentSearchPopup

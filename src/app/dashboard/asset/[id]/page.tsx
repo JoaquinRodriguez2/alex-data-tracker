@@ -48,6 +48,7 @@ export default function AssetPage({ params }: { params: Promise<{ id: string }> 
     const goToParentById = (parentId: string) => {
         router.push(`/asset/${parentId}`);
     }
+    
     return (
         <div className="m-10 p-5 rounded-lg bg-white shadow-md">
             <EquipmentTreeDialog
